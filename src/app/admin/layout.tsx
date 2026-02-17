@@ -7,6 +7,7 @@ import { useAuth } from "@/shared/lib/auth-context";
 import { AdminGuard } from "@/features/admin/components/admin-guard";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
+import { NavLinkIndicator } from "@/shared/components/nav-link-indicator";
 import {
   LayoutDashboard,
   Package,
@@ -104,6 +105,7 @@ export default function AdminLayout({
                     >
                       <item.icon className="h-4 w-4" />
                       {item.label}
+                      <NavLinkIndicator />
                     </Link>
                   </li>
                 );

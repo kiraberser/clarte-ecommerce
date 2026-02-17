@@ -37,6 +37,7 @@ import { useMounted } from "@/shared/hooks/use-mounted";
 import { CartSheet } from "@/features/cart/components/cart-sheet";
 import { SearchBar } from "@/features/search/components/search-bar";
 import { useAuth } from "@/shared/lib/auth-context";
+import { NavLinkIndicator } from "@/shared/components/nav-link-indicator";
 
 export function Navbar() {
   const [cartOpen, setCartOpen] = useState(false);
@@ -78,9 +79,10 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {link.label}
+                <NavLinkIndicator />
               </Link>
             ))}
           </nav>
@@ -198,9 +200,10 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="inline-flex items-center gap-1.5 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 {link.label}
+                <NavLinkIndicator />
               </Link>
             ))}
 
