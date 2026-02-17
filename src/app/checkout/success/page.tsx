@@ -1,7 +1,7 @@
 import { CheckoutSuccess } from "@/features/checkout/components/checkout-success";
 
 export const metadata = {
-  title: "Pedido Confirmado — Clarté",
+  title: "Pedido Confirmado — Ocaso",
 };
 
 export default function CheckoutSuccessPage() {

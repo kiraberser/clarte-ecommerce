@@ -15,7 +15,7 @@ export default function AboutPage() {
               Luz con Propósito
             </h1>
             <p className="mt-6 leading-relaxed text-muted-foreground">
-              Clarté nació de la convicción de que la iluminación puede ser algo
+              Ocaso nació de la convicción de que la iluminación puede ser algo
               más que funcional. Cada lámpara que creamos es una pieza de diseño
               que transforma espacios y eleva lo cotidiano.
             </p>

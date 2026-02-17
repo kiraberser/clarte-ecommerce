@@ -74,7 +74,7 @@ export const useCartStore = create<CartState>()(
         ),
     }),
     {
-      name: "clarte-cart",
+      name: "ocaso-cart",
     }
   )
 );

@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from apps.common.servicios.brevo_service import enviar_email_registro
 from .serializers import RegistroSerializer, UsuarioSerializer, CambioPasswordSerializer
 
 logger = logging.getLogger('clarte')
@@ -33,6 +34,12 @@ class RegistroView(generics.CreateAPIView):
         refresh = RefreshToken.for_user(usuario)
 
         logger.info('Nuevo usuario registrado: %s (ID: %s)', usuario.email, usuario.id)
+
+        # Enviar email de bienvenida (no bloquea el registro si falla)
+        try:
+            enviar_email_registro(usuario)
+        except Exception as e:
+            logger.error('Error al enviar email de registro a %s: %s', usuario.email, e)
 
         return Response(
             {

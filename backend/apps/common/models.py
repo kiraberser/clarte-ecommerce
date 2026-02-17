@@ -27,8 +27,9 @@ class Contacto(models.Model):
 
 
 class SuscripcionNewsletter(models.Model):
-    """Suscripción al newsletter de Clarté."""
+    """Suscripción al newsletter de Ocaso."""
 
+    nombre = models.CharField(_('nombre'), max_length=200, blank=True, default='')
     email = models.EmailField(_('correo electrónico'), unique=True)
     activo = models.BooleanField(_('activo'), default=True)
     created_at = models.DateTimeField(_('fecha de suscripción'), auto_now_add=True)

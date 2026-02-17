@@ -72,7 +72,7 @@ class NewsletterSuscribirView(generics.CreateAPIView):
         # Agregar a lista de Brevo
         try:
             from .servicios.brevo_service import agregar_contacto_newsletter
-            agregar_contacto_newsletter(suscripcion.email)
+            agregar_contacto_newsletter(suscripcion.email, suscripcion.nombre)
         except Exception as e:
             logger.error('Error al agregar contacto a Brevo: %s', e)
 

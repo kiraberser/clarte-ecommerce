@@ -29,7 +29,7 @@ class SuscripcionNewsletterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SuscripcionNewsletter
-        fields = ['id', 'email', 'created_at']
+        fields = ['id', 'nombre', 'email', 'created_at']
         read_only_fields = ['id', 'created_at']
 
     def validate_email(self, value):
@@ -56,5 +56,5 @@ class SuscripcionAdminSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SuscripcionNewsletter
-        fields = ['id', 'email', 'activo', 'created_at']
+        fields = ['id', 'nombre', 'email', 'activo', 'created_at']
         read_only_fields = ['id', 'created_at']

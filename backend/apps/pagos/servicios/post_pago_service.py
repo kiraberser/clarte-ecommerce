@@ -44,8 +44,10 @@ def procesar_post_pago(pago):
     except Exception as e:
         logger.error('Error al crear venta para pedido %s: %s', pedido.numero_pedido, e)
 
-    # 3. Email de confirmación (Brevo pendiente de integrar)
-    logger.info(
-        'Email de confirmación pendiente (Brevo no integrado) para pedido %s, pago %s',
-        pedido.numero_pedido, pago.id,
-    )
+    # 3. Email de confirmación de pedido
+    try:
+        from apps.common.servicios.brevo_service import enviar_confirmacion_pedido
+        enviar_confirmacion_pedido(pedido, pago)
+        logger.info('Email de confirmación enviado para pedido %s', pedido.numero_pedido)
+    except Exception as e:
+        logger.error('Error al enviar email de confirmación para pedido %s: %s', pedido.numero_pedido, e)

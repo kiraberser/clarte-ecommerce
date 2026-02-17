@@ -1,4 +1,4 @@
-export const SITE_NAME = "Clarté";
+export const SITE_NAME = "Ocaso";
 
 export const NAV_LINKS = [
   { label: "Inicio", href: "/" },

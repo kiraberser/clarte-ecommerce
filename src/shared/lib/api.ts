@@ -7,8 +7,8 @@ export const API_BASE_URL =
 // Token helpers (client-side only)
 // ──────────────────────────────────────────────
 
-const TOKEN_KEY = "clarte-access-token";
-const REFRESH_KEY = "clarte-refresh-token";
+const TOKEN_KEY = "ocaso-access-token";
+const REFRESH_KEY = "ocaso-refresh-token";
 
 export function getAccessToken(): string | null {
   if (typeof window === "undefined") return null;

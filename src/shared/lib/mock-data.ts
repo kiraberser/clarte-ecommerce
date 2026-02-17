@@ -34,7 +34,7 @@ export const reviews: Review[] = [
     id: "5",
     name: "Sofía López",
     rating: 5,
-    text: "Clarté combina tecnología y arte de una forma única. Cada lámpara es literalmente una obra de arte funcional.",
+    text: "Ocaso combina tecnología y arte de una forma única. Cada lámpara es literalmente una obra de arte funcional.",
   },
   {
     id: "6",

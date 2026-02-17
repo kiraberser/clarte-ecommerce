@@ -80,7 +80,7 @@ def crear_preferencia(pedido, usuario):
         'items': items_mp,
         'payer': {
             'name': usuario.first_name or 'Cliente',
-            'surname': usuario.last_name or 'Clarté',
+            'surname': usuario.last_name or 'Ocaso',
             'email': usuario.email,
         },
         'back_urls': {
@@ -181,7 +181,7 @@ def procesar_pago_card(pedido, usuario, card_data):
         'issuer_id': str(card_data.get('issuer_id', '')),
         'payer': payer_payload,
         'external_reference': str(pago.id),
-        'description': f'Pedido #{pedido.numero_pedido} - Clarté',
+        'description': f'Pedido #{pedido.numero_pedido} - Ocaso',
     }
 
     # 3. Crear pago en MP (llamada directa para obtener respuesta completa)

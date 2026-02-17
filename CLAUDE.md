@@ -22,7 +22,7 @@ No test framework is configured yet.
 
 ## Architecture
 
-Clarté is a luxury lighting e-commerce store with a **Next.js 16** frontend and **Django 5 + DRF** backend.
+Ocaso is a luxury lighting e-commerce store with a **Next.js 16** frontend and **Django 5 + DRF** backend.
 
 **Frontend**: Next.js 16 (App Router), React 19, Tailwind CSS v4, TypeScript strict, pnpm
 **Backend**: Django 5, Django REST Framework, SimpleJWT, PostgreSQL (port 5433), Cloudinary, Mercado Pago, Brevo
@@ -62,7 +62,7 @@ Six apps under `backend/apps/`: `usuarios`, `inventario`, `pedidos`, `pagos`, `v
 
 - JWT via SimpleJWT (30min access, 7d refresh, rotate + blacklist).
 - Auth context at `src/shared/lib/auth-context.tsx` — provides `user`, `login()`, `register()`, `logout()`, `isAuthenticated`, `isLoading`.
-- Tokens stored in localStorage: `clarte-access-token`, `clarte-refresh-token`.
+- Tokens stored in localStorage: `ocaso-access-token`, `ocaso-refresh-token`.
 - `User` type includes `is_staff: boolean` for admin access control.
 
 ### Admin Panel
@@ -77,7 +77,7 @@ Six apps under `backend/apps/`: `usuarios`, `inventario`, `pedidos`, `pagos`, `v
 
 ### State Management
 
-- **Zustand** with `persist` middleware for cart. Store at `src/features/cart/store/use-cart-store.ts`, persisted to localStorage under `"clarte-cart"`.
+- **Zustand** with `persist` middleware for cart. Store at `src/features/cart/store/use-cart-store.ts`, persisted to localStorage under `"ocaso-cart"`.
 - **React Context** for auth (`AuthProvider`).
 - Use `useMounted()` hook from `src/shared/hooks/use-mounted.ts` to guard hydration-sensitive UI.
 

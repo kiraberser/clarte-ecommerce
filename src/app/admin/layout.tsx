@@ -78,7 +78,7 @@ export default function AdminLayout({
               href="/"
               className="text-sm font-semibold tracking-widest uppercase hover:text-white/80 transition-colors"
             >
-              Clarté
+              Ocaso
             </Link>
             <span className="ml-2 text-xs text-[hsl(0_0%_40%)]">Admin</span>
           </div>

@@ -6,6 +6,7 @@ import { Button } from "@/shared/components/ui/button";
 import { apiPost, ApiError } from "@/shared/lib/api";
 
 export function NewsletterForm() {
+  const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -16,9 +17,10 @@ export function NewsletterForm() {
     setMessage("");
 
     try {
-      await apiPost("/contacto/newsletter/", { email });
+      await apiPost("/contacto/newsletter/", { nombre, email });
       setStatus("success");
       setMessage("Te has suscrito exitosamente.");
+      setNombre("");
       setEmail("");
     } catch (err) {
       setStatus("error");
@@ -32,7 +34,16 @@ export function NewsletterForm() {
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="flex gap-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row">
+        <Input
+          type="text"
+          placeholder="Tu nombre"
+          className="flex-1"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          required
+          disabled={status === "loading"}
+        />
         <Input
           type="email"
           placeholder="tu@email.com"

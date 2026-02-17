@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { uploadImage } from "@/shared/lib/cloudinary";
 
 export async function POST(request: NextRequest) {
-  const token = request.cookies.get("clarte-access-token")?.value;
+  const token = request.cookies.get("ocaso-access-token")?.value;
 
   if (!token) {
     return NextResponse.json(

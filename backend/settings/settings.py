@@ -69,7 +69,7 @@ ROOT_URLCONF = 'settings.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -161,6 +161,9 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     'http://localhost:3000',
     'http://127.0.0.1:3000',
 ])
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r'^https://.*\.ngrok-free\.app$',
+]
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
     'http://localhost:3000',
     'http://127.0.0.1:3000',
@@ -205,11 +208,15 @@ MERCADOPAGO_WEBHOOK_SECRET = env('MERCADOPAGO_WEBHOOK_SECRET', default='')
 # ──────────────────────────────────────────────
 BREVO_API_KEY = env('BREVO_API_KEY', default='')
 BREVO_SENDER_EMAIL = env('BREVO_SENDER_EMAIL', default='')
-BREVO_SENDER_NAME = env('BREVO_SENDER_NAME', default='Clarté')
+BREVO_SENDER_NAME = env('BREVO_SENDER_NAME', default='Ocaso')
 BREVO_TEMPLATE_NEWSLETTER_CONFIRM = env.int('BREVO_TEMPLATE_NEWSLETTER_CONFIRM', default=0)
+BREVO_TEMPLATE_REGISTRO = env.int('BREVO_TEMPLATE_REGISTRO', default=0)
+BREVO_TEMPLATE_PEDIDO = env.int('BREVO_TEMPLATE_PEDIDO', default=0)
 
 # ──────────────────────────────────────────────
 # URLs del proyecto
+
+
 # ──────────────────────────────────────────────
 FRONTEND_URL = env('FRONTEND_URL', default='http://localhost:3000')
 BACKEND_URL = env('BACKEND_URL', default='http://localhost:8000')

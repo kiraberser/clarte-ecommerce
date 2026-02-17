@@ -1,10 +1,13 @@
 """
 Servicio reutilizable de Brevo (ex-Sendinblue).
 Responsabilidades:
-  - Enviar emails transaccionales (confirmación de pedido, contacto).
+  - Enviar emails transaccionales (registro, confirmación de pedido, contacto).
   - Gestionar contactos en listas de Brevo (newsletter).
 
-Usado por: common (contacto, newsletter) y pagos (confirmación de pedido).
+Usa templates de Brevo (por ID) para registro, pedido y newsletter.
+Usa HTML inline solo para notificaciones internas (contacto → admin).
+
+Usado por: common (contacto, newsletter), usuarios (registro), pagos (pedido).
 """
 import logging
 
@@ -43,15 +46,22 @@ def _get_contacts_api():
     )
 
 
+def _sender():
+    """Retorna el dict de sender para los emails."""
+    return {
+        'email': settings.BREVO_SENDER_EMAIL,
+        'name': settings.BREVO_SENDER_NAME,
+    }
+
+
+# ──────────────────────────────────────────────
+# Envío genérico con HTML inline (para emails internos)
+# ──────────────────────────────────────────────
+
 def enviar_email_transaccional(destinatario_email, destinatario_nombre, asunto, contenido_html):
     """
-    Envía un email transaccional genérico vía Brevo.
-
-    Args:
-        destinatario_email: Email del destinatario.
-        destinatario_nombre: Nombre del destinatario.
-        asunto: Asunto del email.
-        contenido_html: Contenido HTML del email.
+    Envía un email transaccional con HTML inline vía Brevo.
+    Usado para notificaciones internas (contacto → admin).
     """
     import sib_api_v3_sdk
 
@@ -59,10 +69,7 @@ def enviar_email_transaccional(destinatario_email, destinatario_nombre, asunto, 
         api = _get_api_instance()
         email = sib_api_v3_sdk.SendSmtpEmail(
             to=[{'email': destinatario_email, 'name': destinatario_nombre}],
-            sender={
-                'email': settings.BREVO_SENDER_EMAIL,
-                'name': settings.BREVO_SENDER_NAME,
-            },
+            sender=_sender(),
             subject=asunto,
             html_content=contenido_html,
         )
@@ -73,6 +80,48 @@ def enviar_email_transaccional(destinatario_email, destinatario_nombre, asunto, 
         logger.error('Error al enviar email a %s: %s', destinatario_email, e)
         raise
 
+
+# ──────────────────────────────────────────────
+# Envío con template de Brevo (por ID + params)
+# ──────────────────────────────────────────────
+
+def _enviar_con_template(template_id, destinatario_email, destinatario_nombre, params=None):
+    """
+    Envía un email usando un template de Brevo.
+
+    Args:
+        template_id: ID del template en Brevo.
+        destinatario_email: Email del destinatario.
+        destinatario_nombre: Nombre del destinatario.
+        params: Dict de variables dinámicas para el template.
+    """
+    import sib_api_v3_sdk
+
+    if not template_id:
+        raise ValueError('Template ID de Brevo no configurado.')
+
+    try:
+        api = _get_api_instance()
+        email = sib_api_v3_sdk.SendSmtpEmail(
+            to=[{'email': destinatario_email, 'name': destinatario_nombre}],
+            sender=_sender(),
+            template_id=template_id,
+            params=params or {},
+        )
+        response = api.send_transac_email(email)
+        logger.info(
+            'Email template %s enviado a %s (message_id: %s)',
+            template_id, destinatario_email, response.message_id,
+        )
+        return response
+    except Exception as e:
+        logger.error('Error al enviar email template %s a %s: %s', template_id, destinatario_email, e)
+        raise
+
+
+# ──────────────────────────────────────────────
+# Contacto (notificación interna al admin — HTML inline)
+# ──────────────────────────────────────────────
 
 def enviar_notificacion_contacto(contacto):
     """
@@ -87,7 +136,7 @@ def enviar_notificacion_contacto(contacto):
         return
 
     contenido = f"""
-    <h2>Nuevo mensaje de contacto en Clarté</h2>
+    <h2>Nuevo mensaje de contacto en Ocaso</h2>
     <p><strong>Nombre:</strong> {contacto.nombre}</p>
     <p><strong>Email:</strong> {contacto.email}</p>
     <p><strong>Teléfono:</strong> {contacto.telefono or 'No proporcionado'}</p>
@@ -98,15 +147,44 @@ def enviar_notificacion_contacto(contacto):
 
     enviar_email_transaccional(
         destinatario_email=admin_email,
-        destinatario_nombre='Admin Clarté',
+        destinatario_nombre='Admin Ocaso',
         asunto=f'[Contacto] {contacto.asunto}',
         contenido_html=contenido,
     )
 
 
+# ──────────────────────────────────────────────
+# Registro — Template Brevo #8
+# ──────────────────────────────────────────────
+
+def enviar_email_registro(usuario):
+    """
+    Envía email de bienvenida al usuario tras registrarse.
+    Usa template de Brevo con params: nombre, email, frontend_url.
+
+    Args:
+        usuario: Instancia del modelo Usuario.
+    """
+    _enviar_con_template(
+        template_id=settings.BREVO_TEMPLATE_REGISTRO,
+        destinatario_email=usuario.email,
+        destinatario_nombre=usuario.first_name or usuario.username,
+        params={
+            'nombre': usuario.first_name or usuario.username,
+            'email': usuario.email,
+            'frontend_url': settings.FRONTEND_URL,
+        },
+    )
+
+
+# ──────────────────────────────────────────────
+# Confirmación de pedido — Template Brevo #7
+# ──────────────────────────────────────────────
+
 def enviar_confirmacion_pedido(pedido, pago):
     """
     Envía email de confirmación de compra al usuario.
+    Usa template de Brevo con params: nombre, numero_pedido, items, total, dirección.
 
     Args:
         pedido: Instancia del modelo Pedido.
@@ -114,61 +192,45 @@ def enviar_confirmacion_pedido(pedido, pago):
     """
     usuario = pedido.usuario
 
-    # Construir tabla de items
-    items_html = ''
+    # Construir lista de items para el template
+    items = []
     for item in pedido.items.select_related('producto'):
-        items_html += f"""
-        <tr>
-            <td>{item.producto.nombre}</td>
-            <td>{item.cantidad}</td>
-            <td>${item.precio_unitario}</td>
-            <td>${item.subtotal}</td>
-        </tr>
-        """
+        items.append({
+            'nombre': item.producto.nombre,
+            'cantidad': int(item.cantidad),
+            'precio_unitario': f'${item.precio_unitario}',
+            'subtotal': f'${item.subtotal}',
+        })
 
-    contenido = f"""
-    <h2>¡Gracias por tu compra en Clarté!</h2>
-    <p>Hola {usuario.first_name or usuario.username},</p>
-    <p>Tu pedido <strong>{pedido.numero_pedido}</strong> ha sido confirmado.</p>
-
-    <h3>Detalle del pedido</h3>
-    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse;">
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Precio</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            {items_html}
-        </tbody>
-    </table>
-
-    <p><strong>Total: ${pedido.total}</strong></p>
-
-    <h3>Dirección de envío</h3>
-    <p>{pedido.direccion_envio}, {pedido.ciudad}, {pedido.estado_envio} {pedido.codigo_postal}</p>
-
-    <p>Te notificaremos cuando tu pedido sea enviado.</p>
-    <p>— Equipo Clarté</p>
-    """
-
-    enviar_email_transaccional(
+    _enviar_con_template(
+        template_id=settings.BREVO_TEMPLATE_PEDIDO,
         destinatario_email=usuario.email,
         destinatario_nombre=usuario.first_name or usuario.username,
-        asunto=f'Confirmación de pedido {pedido.numero_pedido}',
-        contenido_html=contenido,
+        params={
+            'nombre': usuario.first_name or usuario.username,
+            'numero_pedido': pedido.numero_pedido,
+            'items': items,
+            'total': f'${pedido.total}',
+            'direccion': pedido.direccion_envio,
+            'ciudad': pedido.ciudad,
+            'estado_envio': pedido.estado_envio,
+            'codigo_postal': pedido.codigo_postal,
+        },
     )
 
 
-def agregar_contacto_newsletter(email):
+# ──────────────────────────────────────────────
+# Newsletter — Agrega contacto + envía template Brevo #6
+# ──────────────────────────────────────────────
+
+def agregar_contacto_newsletter(email, nombre=''):
     """
-    Agrega un contacto a la lista de newsletter en Brevo.
+    Agrega un contacto a la lista de newsletter en Brevo
+    y envía email de confirmación con template.
 
     Args:
         email: Email del suscriptor.
+        nombre: Nombre del suscriptor.
     """
     import sib_api_v3_sdk
 
@@ -177,14 +239,27 @@ def agregar_contacto_newsletter(email):
         contact = sib_api_v3_sdk.CreateContact(
             email=email,
             update_enabled=True,
+            attributes={'FIRSTNAME': nombre} if nombre else None,
         )
         api.create_contact(contact)
-        logger.info('Contacto agregado a Brevo newsletter: %s', email)
+        logger.info('Contacto agregado a Brevo newsletter: %s (%s)', email, nombre)
     except Exception as e:
-        # Si el contacto ya existe, Brevo lanza excepción pero no es un error real
         error_msg = str(e)
         if 'duplicate' in error_msg.lower() or 'already exist' in error_msg.lower():
             logger.info('Contacto ya existe en Brevo: %s', email)
         else:
             logger.error('Error al agregar contacto a Brevo: %s — %s', email, e)
             raise
+
+    # Enviar email de confirmación de suscripción
+    template_id = settings.BREVO_TEMPLATE_NEWSLETTER_CONFIRM
+    if template_id:
+        try:
+            _enviar_con_template(
+                template_id=template_id,
+                destinatario_email=email,
+                destinatario_nombre=nombre or 'Suscriptor',
+                params={'nombre': nombre, 'email': email},
+            )
+        except Exception as e:
+            logger.error('Error al enviar confirmación de newsletter a %s: %s', email, e)

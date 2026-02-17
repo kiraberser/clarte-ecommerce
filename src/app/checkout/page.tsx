@@ -2,7 +2,7 @@ import { CheckoutForm } from "@/features/checkout/components/checkout-form";
 import { CheckoutSummary } from "@/features/checkout/components/checkout-summary";
 
 export const metadata = {
-  title: "Checkout — Clarté",
+  title: "Checkout — Ocaso",
 };
 
 export default function CheckoutPage() {
