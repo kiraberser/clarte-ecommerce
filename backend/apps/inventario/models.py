@@ -101,6 +101,24 @@ class Producto(models.Model):
         blank=True,
         help_text=_('Lista de URLs de imágenes adicionales.'),
     )
+    dimensiones = models.JSONField(
+        _('dimensiones'),
+        default=dict,
+        blank=True,
+        help_text=_('Dimensiones del producto. Ej: {"alto": "31.7 cm", "diámetro": "25.4 cm"}'),
+    )
+    detalles_tecnicos = models.JSONField(
+        _('detalles técnicos'),
+        default=dict,
+        blank=True,
+        help_text=_('Detalles técnicos. Ej: {"switch": "E27", "voltaje": "220-240V"}'),
+    )
+    materiales = models.JSONField(
+        _('materiales'),
+        default=list,
+        blank=True,
+        help_text=_('Lista de materiales. Ej: ["Polímero biodegradable", "Acero inoxidable"]'),
+    )
     categoria = models.ForeignKey(
         Categoria,
         on_delete=models.PROTECT,

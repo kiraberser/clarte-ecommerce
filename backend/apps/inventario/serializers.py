@@ -71,6 +71,7 @@ class ProductoDetailSerializer(serializers.ModelSerializer):
             'imagen_principal', 'imagenes', 'categoria',
             'categoria_nombre', 'categoria_slug',
             'stock', 'en_stock', 'destacado',
+            'dimensiones', 'detalles_tecnicos', 'materiales',
             'created_at', 'updated_at',
         ]
 
@@ -86,6 +87,7 @@ class ProductoAdminSerializer(serializers.ModelSerializer):
             'id', 'nombre', 'slug', 'descripcion', 'precio',
             'precio_oferta', 'sku', 'imagen_principal', 'imagenes',
             'categoria', 'stock', 'activo', 'destacado',
+            'dimensiones', 'detalles_tecnicos', 'materiales',
             'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']

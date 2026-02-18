@@ -42,6 +42,9 @@ export interface ProductDetail extends Product {
   imagenes: string[];
   categoria_slug: string;
   stock: number;
+  dimensiones: Record<string, string>;
+  detalles_tecnicos: Record<string, string>;
+  materiales: string[];
   created_at: string;
   updated_at: string;
 }
