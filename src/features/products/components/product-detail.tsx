@@ -1,12 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import type { ProductDetail as ProductDetailType } from "@/shared/types/api";
 import { Button } from "@/shared/components/ui/button";
+import { Separator } from "@/shared/components/ui/separator";
+import { cn } from "@/shared/lib/utils";
 import { useCartStore } from "@/features/cart/store/use-cart-store";
-import { ProductImageGallery } from "@/features/products/components/product-image-gallery";
+import { ProductMainImage } from "@/features/products/components/product-image-gallery";
+import { ProductGalleryGrid } from "@/features/products/components/product-image-gallery";
 
 interface ProductDetailProps {
   product: ProductDetailType;
@@ -14,6 +19,9 @@ interface ProductDetailProps {
 
 export function ProductDetail({ product }: ProductDetailProps) {
   const addItem = useCartStore((s) => s.addItem);
+  const router = useRouter();
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [expanded, setExpanded] = useState(false);
 
   const allImages = [
     product.imagen_principal,
@@ -23,22 +31,43 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const hasDiscount = product.precio_oferta !== null;
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
-      <Link
-        href="/collection"
-        className="mb-10 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Volver a la colección
-      </Link>
+    <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+      {/* Breadcrumb + Back */}
+      <div className="mb-10 flex items-center justify-between">
+        <nav className="flex items-center gap-1 text-sm text-muted-foreground">
+          <Link href="/" className="transition-colors hover:text-foreground">
+            Inicio
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <Link
+            href="/collection"
+            className="transition-colors hover:text-foreground"
+          >
+            Colección
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="text-foreground">{product.nombre}</span>
+        </nav>
+        <button
+          onClick={() => router.back()}
+          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          &lt; Volver
+        </button>
+      </div>
 
+      {/* Main: Image + Info */}
       <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
         <motion.div
           initial={{ opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <ProductImageGallery images={allImages} name={product.nombre} />
+          <ProductMainImage
+            src={allImages[selectedIndex]}
+            name={product.nombre}
+            index={selectedIndex}
+          />
         </motion.div>
 
         <motion.div
@@ -63,18 +92,37 @@ export function ProductDetail({ product }: ProductDetailProps) {
               ${Number(product.precio_final).toLocaleString()}
             </span>
           </div>
-          <p className="mt-6 leading-relaxed text-muted-foreground">
-            {product.descripcion}
-          </p>
+
+          <div className="mt-6">
+            <p
+              className={cn(
+                "leading-relaxed text-muted-foreground",
+                !expanded && "line-clamp-3"
+              )}
+            >
+              {product.descripcion}
+            </p>
+            {product.descripcion && product.descripcion.length > 150 && (
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="mt-1 text-sm font-medium underline underline-offset-4 transition-colors hover:text-foreground"
+              >
+                {expanded ? "Leer menos" : "Leer más"}
+              </button>
+            )}
+          </div>
+
           <p className="mt-3 text-sm text-muted-foreground">
             SKU: {product.sku}
           </p>
+
           {!product.en_stock && (
             <p className="mt-2 text-sm text-destructive">Agotado</p>
           )}
+
           <Button
             size="lg"
-            className="mt-8 w-full sm:w-auto"
+            className="mt-8 w-full"
             onClick={() => addItem(product)}
             disabled={!product.en_stock}
           >
@@ -82,6 +130,29 @@ export function ProductDetail({ product }: ProductDetailProps) {
           </Button>
         </motion.div>
       </div>
+
+      {/* Separator */}
+      {allImages.length > 1 && (
+        <>
+          <Separator className="my-12" />
+
+          {/* Gallery Grid */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
+          >
+            <ProductGalleryGrid
+              images={allImages}
+              name={product.nombre}
+              selectedIndex={selectedIndex}
+              onSelect={setSelectedIndex}
+            />
+          </motion.div>
+
+          <Separator className="mt-12" />
+        </>
+      )}
     </section>
   );
 }
