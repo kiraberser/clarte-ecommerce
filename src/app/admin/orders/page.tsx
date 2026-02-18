@@ -125,7 +125,7 @@ export default function AdminOrdersPage() {
           <SelectTrigger className="w-40 border-[hsl(0_0%_16%)] bg-[hsl(0_0%_9%)]">
             <SelectValue placeholder="Estado" />
           </SelectTrigger>
-          <SelectContent className="border-[hsl(0_0%_16%)] bg-[hsl(0_0%_9%)]">
+          <SelectContent className="border-[hsl(0_0%_16%)] bg-[hsl(0_0%_9%)] text-white">
             <SelectItem value="all">Todos</SelectItem>
             <SelectItem value="pendiente">Pendiente</SelectItem>
             <SelectItem value="pagado">Pagado</SelectItem>

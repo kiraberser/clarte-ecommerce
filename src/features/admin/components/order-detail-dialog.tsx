@@ -174,7 +174,7 @@ export function OrderDetailDialog({
                 </SelectTrigger>
                 <SelectContent className="border-[hsl(0_0%_16%)] bg-[hsl(0_0%_9%)]">
                   {transitions.map((t) => (
-                    <SelectItem key={t} value={t}>
+                    <SelectItem className={'text-white'} key={t} value={t}>
                       {t.charAt(0).toUpperCase() + t.slice(1)}
                     </SelectItem>
                   ))}
