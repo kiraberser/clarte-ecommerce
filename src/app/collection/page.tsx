@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { getProducts, getCategories } from "@/shared/lib/services/products";
 
-export const dynamic = "force-dynamic";
 import { ProductGrid } from "@/features/products/components/product-grid";
 import { ProductFilters } from "@/features/products/components/product-filters";
 import { FadeIn } from "@/shared/components/motion-wrapper";

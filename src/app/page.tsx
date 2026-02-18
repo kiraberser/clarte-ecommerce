@@ -5,8 +5,6 @@ import { HeroCarousel } from "@/features/hero/components/hero-carousel";
 import { ProcessSection } from "@/features/about-process/components/process-section";
 import { ReviewsSection } from "@/features/reviews/components/reviews-section";
 
-export const dynamic = "force-dynamic";
-
 export default async function Home() {
   const categories = await getCategories();
 

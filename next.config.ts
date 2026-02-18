@@ -22,6 +22,19 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  cacheComponents: true,
+  cacheLife: {
+    catalog: {
+      stale: 300,
+      revalidate: 3600,
+      expire: 86400,
+    },
+    product: {
+      stale: 300,
+      revalidate: 3600,
+      expire: 86400,
+    },
+  },
 };
 
 export default nextConfig;
