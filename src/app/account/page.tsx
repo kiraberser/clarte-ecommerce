@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -31,10 +32,7 @@ export default function AccountPage() {
     codigo_postal: "",
   });
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -52,20 +50,20 @@ export default function AccountPage() {
 
   const handleChange = (field: keyof ProfileForm, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-    setMessage(null);
+    setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setMessage(null);
+    setError(null);
 
     try {
       await updateProfile(form);
       await refreshUser();
-      setMessage({ type: "success", text: "Perfil actualizado correctamente." });
+      toast.success("Perfil actualizado correctamente.");
     } catch {
-      setMessage({ type: "error", text: "Error al actualizar el perfil." });
+      setError("Error al actualizar el perfil.");
     } finally {
       setSaving(false);
     }
@@ -210,16 +208,8 @@ export default function AccountPage() {
           </div>
         </div>
 
-        {message && (
-          <p
-            className={`text-sm ${
-              message.type === "success"
-                ? "text-muted-foreground"
-                : "text-destructive"
-            }`}
-          >
-            {message.text}
-          </p>
+        {error && (
+          <p className="text-sm text-destructive">{error}</p>
         )}
 
         <Button type="submit" disabled={saving}>

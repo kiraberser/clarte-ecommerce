@@ -2,7 +2,19 @@
 
 import Image from "next/image";
 import { Minus, Plus, X } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/shared/components/ui/alert-dialog";
 import { useCartStore, type CartItem as CartItemType } from "@/features/cart/store/use-cart-store";
 
 interface CartItemProps {
@@ -52,14 +64,32 @@ export function CartItem({ item }: CartItemProps) {
         </Button>
       </div>
 
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-7 w-7"
-        onClick={() => removeItem(item.product.id)}
-      >
-        <X className="h-3 w-3" />
-      </Button>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Eliminar artículo">
+            <X className="h-3 w-3" />
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar artículo?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Se eliminará <span className="font-medium text-foreground">{item.product.nombre}</span> del carrito.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                removeItem(item.product.id);
+                toast.success(`${item.product.nombre} eliminado`);
+              }}
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

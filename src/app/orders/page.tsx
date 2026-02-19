@@ -83,7 +83,11 @@ export default function OrdersPage() {
       ) : (
         <div className="divide-y">
           {orders.map((order) => (
-            <div key={order.id} className="flex items-center justify-between py-6">
+            <Link
+              key={order.id}
+              href={`/orders/${order.numero_pedido}`}
+              className="flex items-center justify-between py-6 transition-opacity hover:opacity-70"
+            >
               <div>
                 <p className="text-sm font-medium">{order.numero_pedido}</p>
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -105,7 +109,7 @@ export default function OrdersPage() {
                   {ESTADO_LABELS[order.estado] ?? order.estado}
                 </p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

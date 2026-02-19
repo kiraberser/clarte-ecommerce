@@ -32,7 +32,6 @@ def _get_sdk():
     access_token = settings.MERCADOPAGO_ACCESS_TOKEN
     if not access_token:
         raise ValueError('MERCADOPAGO_ACCESS_TOKEN no configurado.')
-    logger.info('MP SDK access_token: %s...%s', access_token[:15], access_token[-6:])
     return mercadopago.SDK(access_token)
 
 
@@ -188,14 +187,6 @@ def procesar_pago_card(pedido, usuario, card_data):
     import requests as http_requests
     access_token = settings.MERCADOPAGO_ACCESS_TOKEN
 
-    # Diagnóstico: verificar el token del Brick
-    token_check = http_requests.get(
-        f'https://api.mercadopago.com/v1/card_tokens/{card_data["token"]}',
-        headers={'Authorization': f'Bearer {access_token}'},
-    )
-    logger.info('Token check: status=%s, body=%s', token_check.status_code, token_check.text[:300])
-
-    logger.info('Payment API payload: %s', payment_data)
     mp_response = http_requests.post(
         'https://api.mercadopago.com/v1/payments',
         json=payment_data,
@@ -207,7 +198,6 @@ def procesar_pago_card(pedido, usuario, card_data):
     )
     response_status = mp_response.status_code
     payment_response = mp_response.json()
-    logger.info('Payment API response status: %s, body: %s', response_status, payment_response)
 
     if response_status not in [200, 201]:
         pago.delete()

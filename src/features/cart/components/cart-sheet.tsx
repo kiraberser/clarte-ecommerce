@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { toast } from "sonner";
 import {
   Sheet,
   SheetContent,
@@ -8,6 +9,17 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/shared/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/shared/components/ui/alert-dialog";
 import { Separator } from "@/shared/components/ui/separator";
 import { Button } from "@/shared/components/ui/button";
 import { useCartStore } from "@/features/cart/store/use-cart-store";
@@ -61,13 +73,32 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
                 Finalizar Compra
               </Link>
             </Button>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={clearCart}
-            >
-              Vaciar Carrito
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" className="w-full">
+                  Vaciar Carrito
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Vaciar el carrito?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Se eliminarán todos los artículos del carrito. Esta acción no se puede deshacer.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      clearCart();
+                      toast.success("Carrito vaciado");
+                    }}
+                  >
+                    Vaciar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         )}
       </SheetContent>

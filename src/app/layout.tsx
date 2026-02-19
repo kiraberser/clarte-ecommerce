@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 import { AuthProvider } from "@/shared/lib/auth-context";
 import { SWRProvider } from "@/shared/lib/swr-config";
 import { StoreShell } from "@/shared/components/store-shell";
@@ -33,9 +35,12 @@ export default function RootLayout({
       >
         <SWRProvider>
           <AuthProvider>
-            <StoreShell>{children}</StoreShell>
+            <Suspense>
+              <StoreShell>{children}</StoreShell>
+            </Suspense>
           </AuthProvider>
         </SWRProvider>
+        <Toaster position="bottom-right" richColors />
       </body>
     </html>
   );
