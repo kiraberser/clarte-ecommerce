@@ -52,3 +52,16 @@ export async function updateProfile(data: Partial<User>) {
   );
   return res.data;
 }
+
+export async function requestPasswordReset(email: string) {
+  return apiPost("/auth/solicitar-reset/", { email });
+}
+
+export async function confirmPasswordReset(
+  uid: string,
+  token: string,
+  password: string,
+  password_confirm: string,
+) {
+  return apiPost("/auth/reset-password/", { uid, token, password, password_confirm });
+}

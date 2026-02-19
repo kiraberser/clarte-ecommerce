@@ -16,6 +16,8 @@ auth_urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='auth-login'),
     path('refresh/', TokenRefreshView.as_view(), name='auth-refresh'),
     path('logout/', views.LogoutView.as_view(), name='auth-logout'),
+    path('solicitar-reset/', views.SolicitarResetPasswordView.as_view(), name='auth-solicitar-reset'),
+    path('reset-password/', views.ResetPasswordView.as_view(), name='auth-reset-password'),
 ]
 
 # Rutas de usuario (api/v1/usuarios/)

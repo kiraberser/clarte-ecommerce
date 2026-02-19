@@ -105,6 +105,32 @@ class AdminUsuarioSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'username', 'email', 'date_joined', 'last_login', 'is_staff']
 
 
+class SolicitarResetPasswordSerializer(serializers.Serializer):
+    """Serializer para solicitar el reset de contraseña por email."""
+    email = serializers.EmailField()
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    """Serializer para confirmar el reset de contraseña con uid + token."""
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    password = serializers.CharField(
+        write_only=True,
+        min_length=8,
+        style={'input_type': 'password'},
+    )
+    password_confirm = serializers.CharField(
+        write_only=True,
+        style={'input_type': 'password'},
+    )
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password_confirm']:
+            raise serializers.ValidationError({'password_confirm': 'Las contraseñas no coinciden.'})
+        validate_password(attrs['password'])
+        return attrs
+
+
 class CambioPasswordSerializer(serializers.Serializer):
     """
     Serializer para cambio de contraseña.

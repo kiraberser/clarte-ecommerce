@@ -220,6 +220,49 @@ def enviar_confirmacion_pedido(pedido, pago):
 
 
 # ──────────────────────────────────────────────
+# Reset de contraseña — HTML inline
+# ──────────────────────────────────────────────
+
+def enviar_reset_password(usuario, reset_url):
+    """
+    Envía email con enlace para restablecer la contraseña.
+    Usa HTML inline porque no hay template específico en Brevo para esto.
+
+    Args:
+        usuario: Instancia del modelo Usuario.
+        reset_url: URL completa del frontend para restablecer la contraseña.
+    """
+    nombre = usuario.first_name or usuario.username
+
+    contenido = f"""
+    <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
+      <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 8px;">Restablecer contraseña</h2>
+      <p style="color: #555; margin-bottom: 24px;">
+        Hola {nombre}, recibimos una solicitud para restablecer la contraseña de tu cuenta en Ocaso.
+        Si no la realizaste, puedes ignorar este correo.
+      </p>
+      <a href="{reset_url}"
+         style="display: inline-block; background: #000; color: #fff; padding: 12px 24px;
+                text-decoration: none; font-size: 14px; font-weight: 500;">
+        Restablecer contraseña
+      </a>
+      <p style="color: #888; font-size: 12px; margin-top: 24px;">
+        Este enlace expira en 24 horas.<br>
+        Si el botón no funciona, copia y pega esta URL en tu navegador:<br>
+        <span style="word-break: break-all;">{reset_url}</span>
+      </p>
+    </div>
+    """
+
+    enviar_email_transaccional(
+        destinatario_email=usuario.email,
+        destinatario_nombre=nombre,
+        asunto='Restablece tu contraseña — Ocaso',
+        contenido_html=contenido,
+    )
+
+
+# ──────────────────────────────────────────────
 # Newsletter — Agrega contacto + envía template Brevo #6
 # ──────────────────────────────────────────────
 
