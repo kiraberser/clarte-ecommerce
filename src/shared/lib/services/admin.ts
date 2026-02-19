@@ -6,6 +6,8 @@ import type {
   AdminCategory,
   AdminOrderListItem,
   AdminOrder,
+  AdminPayment,
+  AdminUser,
   Sale,
   SaleDetail,
   SalesSummary,
@@ -142,6 +144,42 @@ export function getAdminSale(id: number) {
 
 export function getSalesSummary() {
   return apiGet<ApiResponse<SalesSummary>>("/ventas/resumen/", true);
+}
+
+// ──────────────────────────────────────────────
+// Pagos (admin)
+// ──────────────────────────────────────────────
+
+export function getAdminPayments(params?: string) {
+  const query = params ? `?${params}` : "";
+  return apiGet<ApiResponse<PaginatedData<AdminPayment>>>(
+    `/pagos/admin/${query}`,
+    true,
+  );
+}
+
+export function getAdminPayment(id: number) {
+  return apiGet<ApiResponse<AdminPayment>>(`/pagos/admin/${id}/`, true);
+}
+
+// ──────────────────────────────────────────────
+// Usuarios (admin)
+// ──────────────────────────────────────────────
+
+export function getAdminUsers(params?: string) {
+  const query = params ? `?${params}` : "";
+  return apiGet<ApiResponse<PaginatedData<AdminUser>>>(
+    `/usuarios/admin/${query}`,
+    true,
+  );
+}
+
+export function updateAdminUser(id: number, data: Partial<AdminUser>) {
+  return apiPatch<ApiResponse<AdminUser>>(
+    `/usuarios/admin/${id}/`,
+    data,
+    true,
+  );
 }
 
 // ──────────────────────────────────────────────

@@ -15,6 +15,7 @@ import {
   TrendingUp,
   Mail,
   Users,
+  CreditCard,
   ExternalLink,
   LogOut,
   Menu,
@@ -27,9 +28,11 @@ const NAV_ITEMS = [
   { href: "/admin/products", label: "Productos", icon: Package },
   { href: "/admin/categories", label: "Categorías", icon: FolderTree },
   { href: "/admin/orders", label: "Pedidos", icon: ShoppingCart },
+  { href: "/admin/payments", label: "Pagos", icon: CreditCard },
+  { href: "/admin/users", label: "Usuarios", icon: Users },
   { href: "/admin/sales", label: "Ventas", icon: TrendingUp },
   { href: "/admin/contacts", label: "Contactos", icon: Mail },
-  { href: "/admin/newsletter", label: "Newsletter", icon: Users },
+  { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
 ];
 
 function getPageTitle(pathname: string) {

@@ -22,4 +22,6 @@ auth_urlpatterns = [
 usuarios_urlpatterns = [
     path('perfil/', views.PerfilView.as_view(), name='usuario-perfil'),
     path('cambiar-password/', views.CambioPasswordView.as_view(), name='usuario-cambiar-password'),
+    path('admin/', views.AdminUsuariosListView.as_view(), name='usuario-admin-list'),
+    path('admin/<int:pk>/', views.AdminUsuarioDetailView.as_view(), name='usuario-admin-detail'),
 ]

@@ -6,15 +6,8 @@ import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import { useAuth } from "@/shared/lib/auth-context";
 import { getMyOrders } from "@/shared/lib/services/orders";
+import { ORDER_STATUS_LABELS } from "@/shared/lib/constants";
 import type { OrderListItem } from "@/shared/types/api";
-
-const ESTADO_LABELS: Record<string, string> = {
-  pendiente: "Pendiente",
-  pagado: "Pagado",
-  enviado: "Enviado",
-  entregado: "Entregado",
-  cancelado: "Cancelado",
-};
 
 export default function OrdersPage() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -106,7 +99,7 @@ export default function OrdersPage() {
                   ${Number(order.total).toLocaleString()}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {ESTADO_LABELS[order.estado] ?? order.estado}
+                  {ORDER_STATUS_LABELS[order.estado] ?? order.estado}
                 </p>
               </div>
             </Link>

@@ -89,6 +89,22 @@ class UsuarioSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'username', 'email', 'date_joined', 'is_staff']
 
 
+class AdminUsuarioSerializer(serializers.ModelSerializer):
+    """
+    Serializer para el panel admin.
+    Permite ver todos los usuarios y actualizar is_active.
+    """
+    class Meta:
+        model = Usuario
+        fields = [
+            'id', 'username', 'email',
+            'first_name', 'last_name', 'telefono',
+            'is_active', 'is_staff',
+            'date_joined', 'last_login',
+        ]
+        read_only_fields = ['id', 'username', 'email', 'date_joined', 'last_login', 'is_staff']
+
+
 class CambioPasswordSerializer(serializers.Serializer):
     """
     Serializer para cambio de contraseña.

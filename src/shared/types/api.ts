@@ -310,3 +310,31 @@ export interface AdminOrderListItem {
   items_count: number;
   created_at: string;
 }
+
+export interface AdminPayment {
+  id: number;
+  numero_pedido: string;
+  usuario_email: string;
+  mercadopago_preference_id: string | null;
+  mercadopago_payment_id: string | null;
+  estado: string;
+  estado_display: string;
+  estado_detalle: string;
+  monto: number;
+  metodo: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminUser {
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  telefono: string;
+  is_active: boolean;
+  is_staff: boolean;
+  date_joined: string;
+  last_login: string | null;
+}

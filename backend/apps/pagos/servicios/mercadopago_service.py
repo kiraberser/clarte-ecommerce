@@ -163,6 +163,11 @@ def procesar_pago_card(pedido, usuario, card_data):
     if not id_type or not id_number:
         id_type = 'RFC'
         id_number = 'XAXX010101000'
+        logger.warning(
+            'Pago pago_id=%s: sin RFC en payer data, usando RFC genérico (XAXX010101000). '
+            'Considerar solicitar RFC al usuario en el checkout.',
+            pago.id,
+        )
 
     payer_payload = {
         'email': payer_email,

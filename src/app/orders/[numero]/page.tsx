@@ -10,15 +10,8 @@ import { Separator } from "@/shared/components/ui/separator";
 import { Badge } from "@/shared/components/ui/badge";
 import { useAuth } from "@/shared/lib/auth-context";
 import { getOrder } from "@/shared/lib/services/orders";
+import { ORDER_STATUS_LABELS } from "@/shared/lib/constants";
 import type { Order } from "@/shared/types/api";
-
-const ESTADO_LABELS: Record<string, string> = {
-  pendiente: "Pendiente",
-  pagado: "Pagado",
-  enviado: "Enviado",
-  entregado: "Entregado",
-  cancelado: "Cancelado",
-};
 
 const ESTADO_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
   pendiente: "secondary",
@@ -106,7 +99,7 @@ export default function OrderDetailPage() {
           </p>
         </div>
         <Badge variant={ESTADO_VARIANT[order.estado] ?? "secondary"}>
-          {ESTADO_LABELS[order.estado] ?? order.estado}
+          {ORDER_STATUS_LABELS[order.estado] ?? order.estado}
         </Badge>
       </div>
 

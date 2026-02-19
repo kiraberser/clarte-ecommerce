@@ -12,9 +12,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from rest_framework import generics
 from apps.pedidos.models import Pedido
 from .models import Pago
-from .serializers import PagoSerializer, CrearPreferenciaSerializer, ProcesarPagoCardSerializer
+from .serializers import PagoSerializer, AdminPagoSerializer, CrearPreferenciaSerializer, ProcesarPagoCardSerializer
 from .servicios.mercadopago_service import (
     crear_preferencia,
     procesar_pago_card,
@@ -176,6 +177,40 @@ class WebhookView(APIView):
             )
 
         return Response({'status': 'ok'}, status=status.HTTP_200_OK)
+
+
+class AdminPagosListView(generics.ListAPIView):
+    """
+    GET /api/v1/pagos/admin/
+    Lista todos los pagos (solo admin). Soporta búsqueda y filtro por estado.
+    """
+    serializer_class = AdminPagoSerializer
+    permission_classes = [permissions.IsAdminUser]
+    queryset = Pago.objects.select_related('pedido', 'usuario').all()
+    search_fields = ['usuario__email', 'pedido__numero_pedido', 'mercadopago_payment_id']
+    filterset_fields = ['estado']
+    ordering_fields = ['created_at', 'monto']
+    ordering = ['-created_at']
+
+
+class AdminPagoDetailView(generics.RetrieveAPIView):
+    """
+    GET /api/v1/pagos/admin/<pago_id>/
+    Detalle de un pago (solo admin).
+    """
+    serializer_class = AdminPagoSerializer
+    permission_classes = [permissions.IsAdminUser]
+    queryset = Pago.objects.select_related('pedido', 'usuario').all()
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response({
+            'success': True,
+            'message': 'OK',
+            'data': serializer.data,
+            'errors': None,
+        })
 
 
 class ConsultarPagoView(APIView):

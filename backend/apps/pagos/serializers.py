@@ -23,6 +23,24 @@ class PagoSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class AdminPagoSerializer(serializers.ModelSerializer):
+    """Serializer de lectura para el panel admin — incluye datos del usuario y pedido."""
+    estado_display = serializers.CharField(source='get_estado_display', read_only=True)
+    numero_pedido = serializers.CharField(source='pedido.numero_pedido', read_only=True)
+    usuario_email = serializers.CharField(source='usuario.email', read_only=True)
+
+    class Meta:
+        model = Pago
+        fields = [
+            'id', 'numero_pedido', 'usuario_email',
+            'mercadopago_preference_id', 'mercadopago_payment_id',
+            'estado', 'estado_display', 'estado_detalle',
+            'monto', 'metodo',
+            'created_at', 'updated_at',
+        ]
+        read_only_fields = fields
+
+
 class CrearPreferenciaSerializer(serializers.Serializer):
     """Serializer de entrada para crear una preferencia de pago."""
     pedido_id = serializers.IntegerField()

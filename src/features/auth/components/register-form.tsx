@@ -6,8 +6,33 @@ import Link from "next/link";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
+import { cn } from "@/shared/lib/utils";
 import { useAuth } from "@/shared/lib/auth-context";
 import { ApiError } from "@/shared/lib/api";
+
+function getPasswordStrength(password: string): {
+  score: number;
+  label: string;
+} {
+  if (!password) return { score: 0, label: "" };
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+  const labels = ["", "Muy débil", "Débil", "Regular", "Buena", "Fuerte"];
+  return { score, label: labels[score] ?? "" };
+}
+
+const STRENGTH_COLORS = [
+  "",
+  "bg-destructive",
+  "bg-orange-400",
+  "bg-yellow-400",
+  "bg-emerald-400",
+  "bg-emerald-500",
+];
 
 export function RegisterForm() {
   const router = useRouter();
@@ -148,6 +173,25 @@ export function RegisterForm() {
             required
             minLength={8}
           />
+          {formData.password && (() => {
+            const { score, label } = getPasswordStrength(formData.password);
+            return (
+              <div className="space-y-1">
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "h-1 flex-1 rounded-full transition-colors",
+                        i <= score ? STRENGTH_COLORS[score] : "bg-secondary",
+                      )}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">{label}</p>
+              </div>
+            );
+          })()}
           {fieldErrors.password && (
             <p className="text-xs text-destructive">{fieldErrors.password[0]}</p>
           )}

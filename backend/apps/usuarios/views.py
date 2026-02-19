@@ -5,14 +5,17 @@ Login y refresh de tokens los provee SimpleJWT directamente en las URLs.
 """
 import logging
 
-from rest_framework import status, generics
+from django.contrib.auth import get_user_model
+from rest_framework import status, generics, permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.common.servicios.brevo_service import enviar_email_registro
-from .serializers import RegistroSerializer, UsuarioSerializer, CambioPasswordSerializer
+from .serializers import RegistroSerializer, UsuarioSerializer, AdminUsuarioSerializer, CambioPasswordSerializer
+
+Usuario = get_user_model()
 
 logger = logging.getLogger('clarte')
 
@@ -142,6 +145,48 @@ class PerfilView(generics.RetrieveUpdateAPIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class AdminUsuariosListView(generics.ListAPIView):
+    """
+    GET /api/v1/usuarios/admin/
+    Lista todos los usuarios (solo admin). Soporta búsqueda.
+    """
+    serializer_class = AdminUsuarioSerializer
+    permission_classes = [permissions.IsAdminUser]
+    queryset = Usuario.objects.all().order_by('-date_joined')
+    search_fields = ['email', 'username', 'first_name', 'last_name']
+    ordering_fields = ['date_joined', 'email']
+    ordering = ['-date_joined']
+
+
+class AdminUsuarioDetailView(generics.RetrieveUpdateAPIView):
+    """
+    GET  /api/v1/usuarios/admin/<id>/  → Detalle de un usuario.
+    PATCH /api/v1/usuarios/admin/<id>/ → Actualizar is_active.
+    """
+    serializer_class = AdminUsuarioSerializer
+    permission_classes = [permissions.IsAdminUser]
+    queryset = Usuario.objects.all()
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', True)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        logger.info(
+            'Admin actualizó usuario %s (ID: %s): %s',
+            instance.email, instance.id, request.data,
+        )
+
+        return Response({
+            'success': True,
+            'message': 'Usuario actualizado.',
+            'data': serializer.data,
+            'errors': None,
+        })
 
 
 class CambioPasswordView(APIView):
