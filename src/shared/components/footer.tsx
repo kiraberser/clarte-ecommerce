@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { SITE_NAME } from "@/shared/lib/constants";
 import { Separator } from "@/shared/components/ui/separator";
 import { NewsletterForm } from "@/features/newsletter/components/newsletter-form";
+import GetYear from "./ui/year";
 
 const footerLinks = {
   nosotros: [
@@ -95,10 +95,8 @@ export function Footer() {
         </div>
 
         <Separator className="my-12" />
-
-        <p className="text-center text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} {SITE_NAME}. Todos los derechos reservados.
-        </p>
+        
+        <GetYear />
       </div>
     </footer>
   );
