@@ -16,11 +16,11 @@ class ContactoSerializer(serializers.ModelSerializer):
 
 
 class ContactoAdminSerializer(serializers.ModelSerializer):
-    """Serializer admin para contactos (incluye campo leído)."""
+    """Serializer admin para contactos. Permite actualizar estado."""
 
     class Meta:
         model = Contacto
-        fields = ['id', 'nombre', 'email', 'telefono', 'asunto', 'mensaje', 'leido', 'created_at']
+        fields = ['id', 'nombre', 'email', 'telefono', 'asunto', 'mensaje', 'estado', 'created_at']
         read_only_fields = ['id', 'nombre', 'email', 'telefono', 'asunto', 'mensaje', 'created_at']
 
 

@@ -8,10 +8,10 @@ from .models import Contacto, SuscripcionNewsletter
 
 @admin.register(Contacto)
 class ContactoAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'email', 'asunto', 'leido', 'created_at']
-    list_filter = ['leido', 'created_at']
+    list_display = ['nombre', 'email', 'asunto', 'estado', 'created_at']
+    list_filter = ['estado', 'created_at']
     search_fields = ['nombre', 'email', 'asunto', 'mensaje']
-    list_editable = ['leido']
+    list_editable = ['estado']
     readonly_fields = ['created_at']
     ordering = ['-created_at']
 
@@ -23,7 +23,7 @@ class ContactoAdmin(admin.ModelAdmin):
             'fields': ('asunto', 'mensaje'),
         }),
         ('Estado', {
-            'fields': ('leido', 'created_at'),
+            'fields': ('estado', 'created_at'),
         }),
     )
 

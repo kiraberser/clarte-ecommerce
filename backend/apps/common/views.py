@@ -37,12 +37,16 @@ class ContactoCreateView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         contacto = serializer.save()
 
-        # Enviar notificación al admin (async-safe: no bloquea si falla)
+        # Enviar notificación al admin + confirmación al usuario
         try:
-            from .servicios.brevo_service import enviar_notificacion_contacto
+            from .servicios.brevo_service import (
+                enviar_notificacion_contacto,
+                enviar_confirmacion_contacto,
+            )
             enviar_notificacion_contacto(contacto)
+            enviar_confirmacion_contacto(contacto)
         except Exception as e:
-            logger.error('Error al enviar notificación de contacto: %s', e)
+            logger.error('Error al enviar emails de contacto: %s', e)
 
         return Response(
             {
@@ -99,15 +103,15 @@ class AdminContactoListView(generics.ListAPIView):
     serializer_class = ContactoAdminSerializer
     permission_classes = [permissions.IsAdminUser]
     queryset = Contacto.objects.all()
-    filterset_fields = ['leido']
+    filterset_fields = ['estado']
     search_fields = ['nombre', 'email', 'asunto']
     ordering = ['-created_at']
 
 
-class AdminContactoMarcarLeidoView(generics.UpdateAPIView):
+class AdminContactoActualizarEstadoView(generics.UpdateAPIView):
     """
-    PATCH /api/v1/contacto/admin/<int:pk>/leido/
-    Marca un contacto como leído (solo admin).
+    PATCH /api/v1/contacto/admin/<int:pk>/estado/
+    Actualiza el estado de un contacto: pendiente | leido | respondido (solo admin).
     """
     serializer_class = ContactoAdminSerializer
     permission_classes = [permissions.IsAdminUser]
@@ -115,12 +119,26 @@ class AdminContactoMarcarLeidoView(generics.UpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         contacto = self.get_object()
-        contacto.leido = True
-        contacto.save(update_fields=['leido'])
+        nuevo_estado = request.data.get('estado')
+
+        estados_validos = [c[0] for c in Contacto.EstadoChoices.choices]
+        if nuevo_estado not in estados_validos:
+            return Response(
+                {
+                    'success': False,
+                    'message': f'Estado inválido. Opciones: {", ".join(estados_validos)}.',
+                    'data': None,
+                    'errors': {'estado': [f'Debe ser uno de: {", ".join(estados_validos)}']},
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        contacto.estado = nuevo_estado
+        contacto.save(update_fields=['estado'])
         return Response(
             {
                 'success': True,
-                'message': 'Contacto marcado como leído.',
+                'message': f'Estado actualizado a "{nuevo_estado}".',
                 'data': ContactoAdminSerializer(contacto).data,
                 'errors': None,
             },

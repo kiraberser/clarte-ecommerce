@@ -13,6 +13,6 @@ urlpatterns = [
 
     # Endpoints admin
     path('admin/', views.AdminContactoListView.as_view(), name='admin-contacto-list'),
-    path('admin/<int:pk>/leido/', views.AdminContactoMarcarLeidoView.as_view(), name='admin-contacto-leido'),
+    path('admin/<int:pk>/estado/', views.AdminContactoActualizarEstadoView.as_view(), name='admin-contacto-estado'),
     path('admin/newsletter/', views.AdminSuscripcionesListView.as_view(), name='admin-newsletter-list'),
 ]

@@ -120,12 +120,12 @@ def _enviar_con_template(template_id, destinatario_email, destinatario_nombre, p
 
 
 # ──────────────────────────────────────────────
-# Contacto (notificación interna al admin — HTML inline)
+# Contacto (notificación interna al admin + confirmación al usuario)
 # ──────────────────────────────────────────────
 
 def enviar_notificacion_contacto(contacto):
     """
-    Envía un email de notificación al admin cuando se recibe un formulario de contacto.
+    Envía email de notificación al admin cuando se recibe un formulario de contacto.
 
     Args:
         contacto: Instancia del modelo Contacto.
@@ -136,19 +136,71 @@ def enviar_notificacion_contacto(contacto):
         return
 
     contenido = f"""
-    <h2>Nuevo mensaje de contacto en Ocaso</h2>
-    <p><strong>Nombre:</strong> {contacto.nombre}</p>
-    <p><strong>Email:</strong> {contacto.email}</p>
-    <p><strong>Teléfono:</strong> {contacto.telefono or 'No proporcionado'}</p>
-    <p><strong>Asunto:</strong> {contacto.asunto}</p>
-    <hr>
-    <p>{contacto.mensaje}</p>
+    <div style="font-family: sans-serif; max-width: 520px; margin: 0 auto; padding: 32px;">
+      <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">
+        Nuevo mensaje de contacto — Ocaso
+      </h2>
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #333;">
+        <tr><td style="padding: 6px 0; color: #888;">Nombre</td><td style="padding: 6px 0;">{contacto.nombre}</td></tr>
+        <tr><td style="padding: 6px 0; color: #888;">Email</td><td style="padding: 6px 0;">{contacto.email}</td></tr>
+        <tr><td style="padding: 6px 0; color: #888;">Teléfono</td><td style="padding: 6px 0;">{contacto.telefono or 'No proporcionado'}</td></tr>
+        <tr><td style="padding: 6px 0; color: #888;">Asunto</td><td style="padding: 6px 0;">{contacto.asunto}</td></tr>
+      </table>
+      <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e5e5;">
+      <p style="font-size: 14px; color: #333; white-space: pre-wrap; line-height: 1.6;">{contacto.mensaje}</p>
+    </div>
     """
 
     enviar_email_transaccional(
         destinatario_email=admin_email,
         destinatario_nombre='Admin Ocaso',
         asunto=f'[Contacto] {contacto.asunto}',
+        contenido_html=contenido,
+    )
+
+
+def enviar_confirmacion_contacto(contacto):
+    """
+    Envía email de confirmación al usuario que envió el formulario de contacto,
+    informándole que su mensaje fue recibido y será atendido a la brevedad.
+
+    Args:
+        contacto: Instancia del modelo Contacto.
+    """
+    nombre = contacto.nombre.split()[0] if contacto.nombre else 'Cliente'
+
+    contenido = f"""
+    <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 32px;">
+      <p style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #888; margin-bottom: 24px;">
+        Ocaso
+      </p>
+      <h2 style="font-size: 22px; font-weight: 600; color: #111; margin-bottom: 8px;">
+        Hemos recibido tu mensaje
+      </h2>
+      <p style="font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 24px;">
+        Hola {nombre}, gracias por ponerte en contacto con nosotros.
+        Tu mensaje sobre <strong style="color: #111;">"{contacto.asunto}"</strong>
+        ha sido recibido y lo atenderemos a la brevedad.
+      </p>
+      <div style="border-left: 2px solid #e5e5e5; padding: 12px 16px; margin-bottom: 24px;">
+        <p style="font-size: 13px; color: #888; margin: 0 0 4px;">Tu mensaje</p>
+        <p style="font-size: 14px; color: #333; margin: 0; white-space: pre-wrap; line-height: 1.5;">{contacto.mensaje[:300]}{"..." if len(contacto.mensaje) > 300 else ""}</p>
+      </div>
+      <p style="font-size: 13px; color: #888; line-height: 1.6; margin-bottom: 0;">
+        Tiempo de respuesta habitual: 24–48 horas hábiles.<br>
+        Si tu consulta es urgente, responde directamente a este correo.
+      </p>
+      <hr style="margin: 32px 0; border: none; border-top: 1px solid #f0f0f0;">
+      <p style="font-size: 11px; color: #bbb; margin: 0;">
+        Ocaso — Iluminación de diseño
+      </p>
+    </div>
+    """
+
+    enviar_email_transaccional(
+        destinatario_email=contacto.email,
+        destinatario_nombre=contacto.nombre,
+        asunto='Hemos recibido tu mensaje — Ocaso',
         contenido_html=contenido,
     )
 
