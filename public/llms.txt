@@ -1,0 +1,59 @@
+# Ocaso
+
+> Ocaso es una tienda mexicana de iluminación de autor. Diseñamos y fabricamos lámparas artesanales mediante modelado 3D e impresión en PLA, combinando manufactura de precisión con estética minimalista. Cada pieza es única, pensada para transformar espacios residenciales y comerciales en declaraciones de diseño contemporáneo.
+
+Ocaso ofrece una colección curada de luminarias de interior: colgantes, sobremesa y apliques de pared. Los productos se venden directamente al consumidor final a través de esta tienda en línea, con envíos a México y pagos procesados mediante Mercado Pago.
+
+## Páginas principales
+
+- [Inicio](https://ocaso.mx/): Portada con colección destacada, propuesta de valor y newsletter.
+- [Colección](https://ocaso.mx/collection): Catálogo completo de productos, filtrable por categoría y precio.
+- [Nosotros](https://ocaso.mx/about): Historia de la marca, proceso de diseño 3D y filosofía artesanal.
+- [Contacto](https://ocaso.mx/contact): Formulario de contacto para consultas, proyectos y pedidos mayoristas.
+
+## Productos
+
+Los productos son luminarias artesanales impresas en PLA con diseño 3D. Cada producto tiene página propia con:
+- Galería de imágenes de alta resolución (almacenadas en Cloudinary)
+- Descripción completa, dimensiones y materiales
+- Precio en pesos mexicanos (MXN), precio de oferta cuando aplica
+- SKU, stock disponible e indicador de disponibilidad
+- Reseñas verificadas de compradores
+
+- [Ver todos los productos](https://ocaso.mx/collection): Listado paginado con búsqueda y filtros.
+- [Producto individual](https://ocaso.mx/products/{slug}): Reemplaza `{slug}` con el identificador del producto (ej. `noir`, `aurora`).
+
+## Compra y pagos
+
+- [Carrito](https://ocaso.mx/): Accesible desde cualquier página mediante el ícono de bolsa en la barra de navegación.
+- [Checkout](https://ocaso.mx/checkout): Proceso de compra con dirección de envío y pago vía Mercado Pago (tarjeta de crédito/débito, transferencia).
+- [Mis Pedidos](https://ocaso.mx/orders): Historial y estado de pedidos del usuario autenticado.
+
+## Cuenta de usuario
+
+- [Iniciar sesión](https://ocaso.mx/login): Acceso con email y contraseña. JWT con refresco automático.
+- [Registro](https://ocaso.mx/register): Creación de cuenta con nombre, email y contraseña.
+- [Mi Cuenta](https://ocaso.mx/account): Perfil, dirección de envío y datos de facturación.
+- [Favoritos](https://ocaso.mx/wishlist): Lista de productos guardados por el usuario.
+- [Restablecer contraseña](https://ocaso.mx/forgot-password): Recuperación de acceso por email.
+
+## Información técnica
+
+- Framework frontend: Next.js 16 (App Router) con React 19 y Tailwind CSS v4
+- Backend: Django 5 + Django REST Framework con autenticación JWT (SimpleJWT)
+- Base de datos: PostgreSQL
+- Imágenes: Cloudinary
+- Pagos: Mercado Pago
+- Emails transaccionales: Brevo (ex-Sendinblue)
+- Idioma principal: Español (es-MX)
+- Moneda: Peso mexicano (MXN)
+
+## Contenido excluido
+
+Las siguientes rutas requieren autenticación o son de uso interno y no deben ser indexadas:
+
+- `/admin/*` — Panel de administración (solo staff)
+- `/account` — Perfil privado del usuario
+- `/checkout` — Proceso de compra activo
+- `/orders` — Historial de pedidos del usuario
+- `/wishlist` — Lista de favoritos del usuario
