@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Package } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import { useAuth } from "@/shared/lib/auth-context";
@@ -65,10 +66,11 @@ export default function OrdersPage() {
       <Separator className="mt-6" />
 
       {orders.length === 0 ? (
-        <div className="py-16 text-center">
+        <div className="flex flex-col items-center gap-4 py-20 text-center">
+          <Package className="h-10 w-10 text-muted-foreground" strokeWidth={1} />
           <p className="text-muted-foreground">No tienes pedidos en proceso.</p>
           <Link href="/collection">
-            <Button variant="outline" className="mt-6">
+            <Button variant="outline" size="sm">
               Ver Colección
             </Button>
           </Link>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { ShoppingBag } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import { useAuth } from "@/shared/lib/auth-context";
@@ -58,12 +59,11 @@ export default function PurchasesPage() {
       <Separator className="mt-6" />
 
       {orders.length === 0 ? (
-        <div className="py-16 text-center">
-          <p className="text-muted-foreground">
-            Aún no tienes compras completadas.
-          </p>
+        <div className="flex flex-col items-center gap-4 py-20 text-center">
+          <ShoppingBag className="h-10 w-10 text-muted-foreground" strokeWidth={1} />
+          <p className="text-muted-foreground">Aún no tienes compras completadas.</p>
           <Link href="/collection">
-            <Button variant="outline" className="mt-6">
+            <Button variant="outline" size="sm">
               Ver Colección
             </Button>
           </Link>

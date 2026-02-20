@@ -51,7 +51,16 @@ export default async function CollectionPage({
       </FadeIn>
 
       <FadeIn delay={0.2}>
-        <ProductGrid products={productsData.results} />
+        <ProductGrid
+          products={productsData.results}
+          emptyMessage={
+            category
+              ? `No encontramos productos en esta categoría.`
+              : "No hay productos disponibles por el momento."
+          }
+          emptyHref={category ? "/collection" : undefined}
+          emptyAction={category ? "Ver toda la colección" : undefined}
+        />
       </FadeIn>
 
       {/* Pagination */}

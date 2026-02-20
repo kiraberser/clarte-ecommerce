@@ -21,6 +21,8 @@ const footerLinks = {
     { label: "Envíos", href: "/legal/politica-envio" },
     { label: "Devoluciones", href: "/legal/politica-devoluciones" },
     { label: "Política de Cookies", href: "/legal/politica-cookies" },
+    { label: "Política de Privacidad", href: "/legal/politica-privacidad" },
+    { label: "Términos de Servicio", href: "/legal/terminos-servicio" },
   ],
 };
 
