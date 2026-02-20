@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Minus, Plus } from "lucide-react";
+import { ChevronRight, Heart, Minus, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import type { ProductDetail as ProductDetailType } from "@/shared/types/api";
@@ -11,6 +11,9 @@ import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
 import { useCartStore } from "@/features/cart/store/use-cart-store";
+import { useWishlistStore } from "@/features/products/store/use-wishlist-store";
+import { useAuth } from "@/shared/lib/auth-context";
+import { addToWishlist, removeFromWishlist } from "@/shared/lib/services/products-client";
 import { ProductMainImage } from "@/features/products/components/product-image-gallery";
 import { ProductGalleryGrid } from "@/features/products/components/product-image-gallery";
 
@@ -20,10 +23,31 @@ interface ProductDetailProps {
 
 export function ProductDetail({ product }: ProductDetailProps) {
   const addItem = useCartStore((s) => s.addItem);
+  const { isAuthenticated } = useAuth();
+  const { add, remove, isWishlisted } = useWishlistStore();
   const router = useRouter();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const [quantity, setQuantity] = useState(1);
+
+  const wishlisted = isWishlisted(product.id);
+
+  async function handleWishlist() {
+    if (!isAuthenticated) {
+      router.push("/login");
+      return;
+    }
+    if (wishlisted) {
+      remove(product.id);
+      await removeFromWishlist(product.id).catch(() => add(product.id));
+    } else {
+      add(product.id);
+      await addToWishlist(product.id).catch(() => {
+        remove(product.id);
+        toast.error("No se pudo agregar a favoritos.");
+      });
+    }
+  }
 
   const allImages = [
     product.imagen_principal,
@@ -156,6 +180,18 @@ export function ProductDetail({ product }: ProductDetailProps) {
             >
               {product.en_stock ? "Agregar al Carrito" : "Agotado"}
             </Button>
+            <button
+              onClick={handleWishlist}
+              aria-label={wishlisted ? "Quitar de favoritos" : "Agregar a favoritos"}
+              className="flex h-12 w-12 items-center justify-center border transition-colors hover:bg-secondary"
+            >
+              <Heart
+                className={cn(
+                  "h-5 w-5 transition-colors",
+                  wishlisted ? "fill-foreground text-foreground" : "text-foreground",
+                )}
+              />
+            </button>
           </div>
         </motion.div>
       </div>
