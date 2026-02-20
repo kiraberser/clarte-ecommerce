@@ -3,7 +3,7 @@ import { getCategories } from "@/shared/lib/services/products";
 import { FeaturedProducts } from "@/features/products/components/featured-products";
 import { HeroCarousel } from "@/features/hero/components/hero-carousel";
 import { ProcessSection } from "@/features/about-process/components/process-section";
-import { ReviewsSection } from "@/features/reviews/components/reviews-section";
+import { TestimonialsSection } from "@/features/products/components/testimonials-section";
 
 export default async function Home() {
   const categories = await getCategories();
@@ -19,8 +19,8 @@ export default async function Home() {
       {/* Proceso 3D */}
       <ProcessSection />
 
-      {/* Reviews */}
-      <ReviewsSection />
+      {/* Testimonios */}
+      <TestimonialsSection />
 
       {/* Categories */}
       {categories.length > 0 && (

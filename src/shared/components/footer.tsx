@@ -16,9 +16,11 @@ const footerLinks = {
     { label: "Apliques de Pared", href: "/collection?category=wall-sconces" },
   ],
   soporte: [
-    { label: "Contáctanos", href: "/about" },
-    { label: "Envíos", href: "/about" },
-    { label: "Devoluciones", href: "/about" },
+    { label: "Contáctanos", href: "/contact" },
+    { label: "Preguntas Frecuentes", href: "/legal/faq" },
+    { label: "Envíos", href: "/legal/politica-envio" },
+    { label: "Devoluciones", href: "/legal/politica-devoluciones" },
+    { label: "Política de Cookies", href: "/legal/politica-cookies" },
   ],
 };
 

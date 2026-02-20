@@ -4,7 +4,7 @@ import { Star } from "lucide-react";
 import { reviews } from "@/shared/lib/mock-data";
 import { FadeIn } from "@/shared/components/motion-wrapper";
 
-export function ReviewsSection() {
+export function TestimonialsSection() {
   return (
     <section className="mx-auto max-w-7xl px-6 py-24 lg:px-8">
       <FadeIn>

@@ -47,16 +47,16 @@ Six apps under `backend/apps/`: `usuarios`, `inventario`, `pedidos`, `pagos`, `v
 - **shadcn/ui aliases** (`components.json`): `ui` → `@/shared/components/ui`, `lib` → `@/shared/lib`, `hooks` → `@/shared/hooks`.
 - Product type uses `id: number` (from Django), fields in Spanish (`nombre`, `precio`, `slug`, etc.).
 - Product routes use `[slug]` not `[id]`.
-- Pages fetching from Django use `export const dynamic = "force-dynamic"`.
 
 ### Data Flow
 
 - **API client**: `src/shared/lib/api.ts` — `apiFetch()`, `apiGet()`, `apiPost()`, `apiPatch()`, `apiPut()`, `apiDelete()` with JWT token injection.
 - **Types**: `src/shared/types/api.ts` — All TypeScript interfaces aligned with Django serializers. Backend returns `{ success, message, data, errors }`.
-- **Server services**: `src/shared/lib/services/products.ts` — use `React.cache()` for per-request dedup.
-- **Client services**: `src/shared/lib/services/auth.ts`, `orders.ts`, `admin.ts` — called from client components.
+- **Server services**: `src/shared/lib/services/products.ts` — use Next.js `"use cache"` directive with `cacheLife` and `cacheTag` for per-request dedup and invalidation. Do **not** use `React.cache()` or `force-dynamic`.
+- **Client services**: `src/shared/lib/services/auth.ts`, `orders.ts`, `admin.ts`, `contact.ts`, `payments.ts` — called from client components, use the `api.ts` helpers.
+- **`products-client.ts`**: Client-safe product API (reviews + wishlist). Cannot use `"use cache"` — safe to import in client components.
 - **SWR**: Used for client-side data fetching. Provider wraps app in root layout.
-- `mock-data.ts` only contains reviews (no backend endpoint for reviews yet).
+- `mock-data.ts` contains homepage testimonials only (static, no API). Product reviews use the live backend endpoint.
 
 ### Auth
 
@@ -64,10 +64,11 @@ Six apps under `backend/apps/`: `usuarios`, `inventario`, `pedidos`, `pagos`, `v
 - Auth context at `src/shared/lib/auth-context.tsx` — provides `user`, `login()`, `register()`, `logout()`, `isAuthenticated`, `isLoading`.
 - Tokens stored in localStorage: `ocaso-access-token`, `ocaso-refresh-token`.
 - `User` type includes `is_staff: boolean` for admin access control.
+- Forgot/reset password flow: `/forgot-password` → `/reset-password/[uid]/[token]`.
 
 ### Admin Panel
 
-- Route: `/admin` with 7 sub-pages (dashboard, products, categories, orders, sales, contacts, newsletter).
+- Route: `/admin` with 9 sub-pages: dashboard, products, categories, orders, sales, contacts, newsletter, payments, users.
 - Protected by `AdminGuard` component — requires `is_staff` on user.
 - Uses dark theme via `.admin-dark` CSS class scope (inverted monochromatic palette).
 - Own layout at `src/app/admin/layout.tsx` (sidebar nav, no main Navbar/Footer).
@@ -78,6 +79,7 @@ Six apps under `backend/apps/`: `usuarios`, `inventario`, `pedidos`, `pagos`, `v
 ### State Management
 
 - **Zustand** with `persist` middleware for cart. Store at `src/features/cart/store/use-cart-store.ts`, persisted to localStorage under `"ocaso-cart"`.
+- **Zustand** with `persist` middleware for wishlist. Store at `src/features/products/store/use-wishlist-store.ts`, persisted under `"ocaso-wishlist"`. Synced with backend via `use-wishlist-sync.ts` hook.
 - **React Context** for auth (`AuthProvider`).
 - Use `useMounted()` hook from `src/shared/hooks/use-mounted.ts` to guard hydration-sensitive UI.
 
