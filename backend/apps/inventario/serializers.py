@@ -5,7 +5,7 @@ Admin usa serializers con todos los campos editables.
 """
 from rest_framework import serializers
 
-from .models import Categoria, Producto
+from .models import Categoria, ListaDeseos, Producto, Resena
 
 
 # ──────────────────────────────────────────────
@@ -110,3 +110,46 @@ class ProductoAdminSerializer(serializers.ModelSerializer):
                 {'precio_oferta': 'El precio de oferta debe ser menor al precio normal.'}
             )
         return attrs
+
+
+# ──────────────────────────────────────────────
+# RESEÑAS
+# ──────────────────────────────────────────────
+
+class ResenaSerializer(serializers.ModelSerializer):
+    """Serializer de lectura para reseñas."""
+    usuario_nombre = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Resena
+        fields = ['id', 'usuario_nombre', 'rating', 'comentario', 'created_at']
+
+    def get_usuario_nombre(self, obj):
+        full_name = obj.usuario.get_full_name()
+        return full_name if full_name.strip() else obj.usuario.username
+
+
+class CrearResenaSerializer(serializers.ModelSerializer):
+    """Serializer de escritura para crear una reseña."""
+
+    class Meta:
+        model = Resena
+        fields = ['rating', 'comentario']
+
+    def validate_rating(self, value):
+        if not (1 <= value <= 5):
+            raise serializers.ValidationError('La calificación debe estar entre 1 y 5.')
+        return value
+
+
+# ──────────────────────────────────────────────
+# LISTA DE DESEOS
+# ──────────────────────────────────────────────
+
+class ListaDeseosSerializer(serializers.ModelSerializer):
+    """Serializer para items de la lista de deseos."""
+    producto = ProductoListSerializer(read_only=True)
+
+    class Meta:
+        model = ListaDeseos
+        fields = ['id', 'producto', 'created_at']

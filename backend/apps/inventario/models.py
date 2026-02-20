@@ -5,10 +5,12 @@ y operaciones atómicas de stock con F() expressions.
 """
 import logging
 
+from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import F
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from django.db.models import F
 
 logger = logging.getLogger('clarte')
 
@@ -207,3 +209,62 @@ class Producto(models.Model):
             'Stock incrementado: producto %s (SKU: %s), cantidad: %d, stock actual: %d',
             self.nombre, self.sku, cantidad, self.stock,
         )
+
+
+class Resena(models.Model):
+    """Reseña de producto por un usuario autenticado."""
+
+    producto = models.ForeignKey(
+        Producto,
+        on_delete=models.CASCADE,
+        related_name='resenas',
+        verbose_name=_('producto'),
+    )
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='resenas',
+        verbose_name=_('usuario'),
+    )
+    rating = models.PositiveSmallIntegerField(
+        _('calificación'),
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+    )
+    comentario = models.TextField(_('comentario'), blank=True, default='')
+    created_at = models.DateTimeField(_('fecha'), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('reseña')
+        verbose_name_plural = _('reseñas')
+        ordering = ['-created_at']
+        unique_together = [['producto', 'usuario']]
+
+    def __str__(self):
+        return f'{self.usuario} — {self.producto.nombre} ({self.rating}★)'
+
+
+class ListaDeseos(models.Model):
+    """Lista de deseos de un usuario."""
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='lista_deseos',
+        verbose_name=_('usuario'),
+    )
+    producto = models.ForeignKey(
+        Producto,
+        on_delete=models.CASCADE,
+        related_name='en_lista_deseos',
+        verbose_name=_('producto'),
+    )
+    created_at = models.DateTimeField(_('fecha'), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('favorito')
+        verbose_name_plural = _('favoritos')
+        unique_together = [['usuario', 'producto']]
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.usuario} ❤ {self.producto.nombre}'

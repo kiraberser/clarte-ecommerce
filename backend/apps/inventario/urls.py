@@ -18,6 +18,9 @@ urlpatterns = [
     path('', views.ProductoListView.as_view(), name='producto-list'),
     path('destacados/', views.ProductoDestacadosView.as_view(), name='producto-destacados'),
     path('categorias/', views.CategoriaListView.as_view(), name='categoria-list'),
+    path('lista-deseos/', views.ListaDeseosView.as_view(), name='lista-deseos'),
+    path('<slug:slug>/resenas/', views.ProductoResenasListView.as_view(), name='producto-resenas'),
+    path('<slug:slug>/resenas/crear/', views.CrearResenaView.as_view(), name='crear-resena'),
     path('<slug:slug>/', views.ProductoDetailView.as_view(), name='producto-detail'),
 
     # Endpoints admin (CRUD completo)
