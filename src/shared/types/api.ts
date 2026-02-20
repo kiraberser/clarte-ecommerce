@@ -338,3 +338,25 @@ export interface AdminUser {
   date_joined: string;
   last_login: string | null;
 }
+
+// ──────────────────────────────────────────────
+// Reseñas
+// ──────────────────────────────────────────────
+
+export interface ProductReview {
+  id: number;
+  usuario_nombre: string;
+  rating: number;
+  comentario: string;
+  created_at: string;
+}
+
+// ──────────────────────────────────────────────
+// Lista de Deseos
+// ──────────────────────────────────────────────
+
+export interface WishlistItem {
+  id: number;
+  producto: Product;
+  created_at: string;
+}
