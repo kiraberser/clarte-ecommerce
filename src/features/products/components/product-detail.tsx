@@ -172,9 +172,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
             SKU: {product.sku}
           </p>
 
-          {!product.en_stock && (
-            <p className="mt-2 text-sm text-destructive">Agotado</p>
-          )}
+          {!product.en_stock ? (
+            <p className="mt-2 text-sm font-medium text-destructive">Agotado</p>
+          ) : product.stock > 0 && product.stock <= 5 ? (
+            <p className="mt-2 text-sm font-medium text-amber-600">
+              ¡Solo quedan {product.stock} {product.stock === 1 ? "unidad" : "unidades"}!
+            </p>
+          ) : null}
 
           {/* Row 1: Quantity + Add to Cart */}
           <div className="mt-8 flex items-center gap-3">

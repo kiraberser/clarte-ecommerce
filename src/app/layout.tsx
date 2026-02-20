@@ -6,6 +6,7 @@ import { AuthProvider } from "@/shared/lib/auth-context";
 import { SWRProvider } from "@/shared/lib/swr-config";
 import { StoreShell } from "@/shared/components/store-shell";
 import { CookieBanner } from "@/features/legal/components/cookie-banner";
+import { NewsletterModal } from "@/features/newsletter/components/newsletter-modal";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -56,6 +57,7 @@ export default function RootLayout({
             </Suspense>
           </AuthProvider>
         </SWRProvider>
+        <NewsletterModal />
         <CookieBanner />
         <Toaster position="bottom-right" richColors />
       </body>

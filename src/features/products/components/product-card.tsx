@@ -60,6 +60,22 @@ export function ProductCard({ product }: ProductCardProps) {
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
+
+          {/* Badges top-left */}
+          <div className="absolute left-2 top-2 flex flex-col gap-1">
+            {!product.en_stock && (
+              <span className="bg-foreground px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-background">
+                Agotado
+              </span>
+            )}
+            {product.en_stock && hasDiscount && (
+              <span className="bg-foreground px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-background">
+                Oferta
+              </span>
+            )}
+          </div>
+
+          {/* Wishlist button top-right */}
           <button
             onClick={handleWishlist}
             aria-label={wishlisted ? "Quitar de favoritos" : "Agregar a favoritos"}
