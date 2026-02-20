@@ -12,6 +12,7 @@ import type {
   SaleDetail,
   SalesSummary,
   Contact,
+  ContactEstado,
   NewsletterAdmin,
 } from "@/shared/types/api";
 
@@ -194,10 +195,10 @@ export function getAdminContacts(params?: string) {
   );
 }
 
-export function markContactRead(id: number) {
+export function updateContactEstado(id: number, estado: ContactEstado) {
   return apiPatch<ApiResponse<Contact>>(
-    `/contacto/admin/${id}/leido/`,
-    {},
+    `/contacto/admin/${id}/estado/`,
+    { estado },
     true,
   );
 }

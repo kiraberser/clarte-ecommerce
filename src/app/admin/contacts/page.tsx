@@ -16,20 +16,32 @@ import {
 } from "@/features/admin/components/admin-data-table";
 import { AdminToolbar } from "@/features/admin/components/admin-toolbar";
 import { ContactDetailDialog } from "@/features/admin/components/contact-detail-dialog";
-import { markContactRead } from "@/shared/lib/services/admin";
-import type { ApiResponse, PaginatedData, Contact } from "@/shared/types/api";
+import { updateContactEstado } from "@/shared/lib/services/admin";
+import type { ApiResponse, PaginatedData, Contact, ContactEstado } from "@/shared/types/api";
+
+const ESTADO_LABELS: Record<ContactEstado, string> = {
+  pendiente: "Pendiente",
+  leido: "Leído",
+  respondido: "Respondido",
+};
+
+const ESTADO_STYLES: Record<ContactEstado, string> = {
+  pendiente: "border-white/40 text-white font-medium",
+  leido: "border-[hsl(0_0%_25%)] text-[hsl(0_0%_55%)]",
+  respondido: "border-[hsl(120_20%_30%)] text-[hsl(120_30%_55%)]",
+};
 
 export default function AdminContactsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [readFilter, setReadFilter] = useState("");
+  const [estadoFilter, setEstadoFilter] = useState("");
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
   const params = new URLSearchParams();
   params.set("page", String(page));
   if (search) params.set("search", search);
-  if (readFilter) params.set("leido", readFilter);
+  if (estadoFilter) params.set("estado", estadoFilter);
 
   const { data, isLoading, mutate } = useSWR<ApiResponse<PaginatedData<Contact>>>(
     `/contacto/admin/?${params.toString()}`,
@@ -44,10 +56,10 @@ export default function AdminContactsPage() {
     setPage(1);
   }, []);
 
-  const handleMarkRead = async (id: number) => {
-    await markContactRead(id);
+  const handleUpdateEstado = async (id: number, estado: ContactEstado) => {
+    await updateContactEstado(id, estado);
     mutate();
-    setSelectedContact((prev) => (prev ? { ...prev, leido: true } : null));
+    setSelectedContact((prev) => (prev ? { ...prev, estado } : null));
   };
 
   const columns: Column<Contact>[] = [
@@ -68,16 +80,12 @@ export default function AdminContactsPage() {
     },
     {
       header: "Estado",
-      accessor: "leido",
+      accessor: "estado",
       render: (row) => (
         <span
-          className={`inline-flex items-center rounded-sm border px-2 py-0.5 text-xs ${
-            row.leido
-              ? "border-[hsl(0_0%_25%)] text-[hsl(0_0%_55%)]"
-              : "border-white/40 text-white font-medium"
-          }`}
+          className={`inline-flex items-center rounded-sm border px-2 py-0.5 text-xs ${ESTADO_STYLES[row.estado]}`}
         >
-          {row.leido ? "Leído" : "Nuevo"}
+          {ESTADO_LABELS[row.estado]}
         </span>
       ),
     },
@@ -90,9 +98,9 @@ export default function AdminContactsPage() {
         onSearch={handleSearch}
       >
         <Select
-          value={readFilter || "all"}
+          value={estadoFilter || "all"}
           onValueChange={(v) => {
-            setReadFilter(v === "all" ? "" : v);
+            setEstadoFilter(v === "all" ? "" : v);
             setPage(1);
           }}
         >
@@ -101,8 +109,9 @@ export default function AdminContactsPage() {
           </SelectTrigger>
           <SelectContent className="border-[hsl(0_0%_16%)] bg-[hsl(0_0%_9%)]">
             <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="false">No leídos</SelectItem>
-            <SelectItem value="true">Leídos</SelectItem>
+            <SelectItem value="pendiente">Pendiente</SelectItem>
+            <SelectItem value="leido">Leído</SelectItem>
+            <SelectItem value="respondido">Respondido</SelectItem>
           </SelectContent>
         </Select>
       </AdminToolbar>
@@ -122,7 +131,7 @@ export default function AdminContactsPage() {
         open={detailOpen}
         onOpenChange={setDetailOpen}
         contact={selectedContact}
-        onMarkRead={handleMarkRead}
+        onUpdateEstado={handleUpdateEstado}
       />
     </div>
   );

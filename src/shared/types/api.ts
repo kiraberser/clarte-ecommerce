@@ -238,6 +238,8 @@ export interface SalesSummary {
   } | null;
 }
 
+export type ContactEstado = "pendiente" | "leido" | "respondido";
+
 export interface Contact {
   id: number;
   nombre: string;
@@ -245,7 +247,7 @@ export interface Contact {
   telefono: string;
   asunto: string;
   mensaje: string;
-  leido: boolean;
+  estado: ContactEstado;
   created_at: string;
 }
 
