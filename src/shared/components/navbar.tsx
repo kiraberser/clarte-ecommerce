@@ -12,6 +12,7 @@ import {
   UserCog,
   LayoutDashboard,
   ChevronDown,
+  Heart,
 } from "lucide-react";
 import { useState } from "react";
 import { SITE_NAME, NAV_LINKS } from "@/shared/lib/constants";
@@ -134,6 +135,12 @@ export function Navbar() {
                       Mis Compras
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/wishlist">
+                      <Heart className="h-4 w-4" />
+                      Favoritos
+                    </Link>
+                  </DropdownMenuItem>
                   {user?.is_staff && (
                     <>
                       <DropdownMenuSeparator />
@@ -237,6 +244,14 @@ export function Navbar() {
                 >
                   <Receipt className="h-4 w-4" />
                   Mis Compras
+                </Link>
+                <Link
+                  href="/wishlist"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <Heart className="h-4 w-4" />
+                  Favoritos
                 </Link>
                 {user?.is_staff && (
                   <Link

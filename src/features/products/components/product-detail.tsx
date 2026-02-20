@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Heart, Minus, Plus } from "lucide-react";
+import { ChevronRight, Heart, Minus, Plus, Share2, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import type { ProductDetail as ProductDetailType } from "@/shared/types/api";
@@ -29,8 +29,21 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [copied, setCopied] = useState(false);
 
   const wishlisted = isWishlisted(product.id);
+
+  async function handleShare() {
+    const url = window.location.href;
+    if (navigator.share) {
+      await navigator.share({ title: product.nombre, url }).catch(() => {});
+    } else {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Enlace copiado al portapapeles");
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
 
   async function handleWishlist() {
     if (!isAuthenticated) {
@@ -146,6 +159,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             <p className="mt-2 text-sm text-destructive">Agotado</p>
           )}
 
+          {/* Row 1: Quantity + Add to Cart */}
           <div className="mt-8 flex items-center gap-3">
             <div className="flex items-center border">
               <button
@@ -180,17 +194,35 @@ export function ProductDetail({ product }: ProductDetailProps) {
             >
               {product.en_stock ? "Agregar al Carrito" : "Agotado"}
             </Button>
+          </div>
+
+          {/* Row 2: Wishlist + Share */}
+          <div className="mt-3 flex items-center gap-1">
             <button
               onClick={handleWishlist}
-              aria-label={wishlisted ? "Quitar de favoritos" : "Agregar a favoritos"}
-              className="flex h-12 w-12 items-center justify-center border transition-colors hover:bg-secondary"
+              aria-label={wishlisted ? "Quitar de favoritos" : "Guardar en favoritos"}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               <Heart
                 className={cn(
-                  "h-5 w-5 transition-colors",
-                  wishlisted ? "fill-foreground text-foreground" : "text-foreground",
+                  "h-4 w-4 transition-colors",
+                  wishlisted && "fill-foreground text-foreground",
                 )}
               />
+              {wishlisted ? "Guardado" : "Guardar"}
+            </button>
+            <span className="text-muted-foreground/30">·</span>
+            <button
+              onClick={handleShare}
+              aria-label="Compartir producto"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {copied ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Share2 className="h-4 w-4" />
+              )}
+              {copied ? "Copiado" : "Compartir"}
             </button>
           </div>
         </motion.div>
