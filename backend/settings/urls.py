@@ -17,6 +17,7 @@ urlpatterns = [
     path('api/v1/usuarios/', include((usuarios_urlpatterns, 'usuarios'))),
     path('api/v1/productos/', include('apps.inventario.urls')),
     path('api/v1/pedidos/', include('apps.pedidos.urls')),
+    path('api/v1/descuentos/', include('apps.descuentos.urls')),
     path('api/v1/pagos/', include('apps.pagos.urls')),
     path('api/v1/ventas/', include('apps.ventas.urls')),
     path('api/v1/contacto/', include('apps.common.urls')),

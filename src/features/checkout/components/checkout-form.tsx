@@ -8,11 +8,15 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { useCartStore } from "@/features/cart/store/use-cart-store";
 import { useAuth } from "@/shared/lib/auth-context";
-import { createOrder } from "@/shared/lib/services/orders";
+import { createOrder, validateCoupon } from "@/shared/lib/services/orders";
 import { ApiError } from "@/shared/lib/api";
 import { CardPaymentBrick } from "@/features/checkout/components/card-payment";
 
-export function CheckoutForm() {
+interface CheckoutFormProps {
+  onCouponApplied?: (code: string, discount: number) => void;
+}
+
+export function CheckoutForm({ onCouponApplied }: CheckoutFormProps) {
   const router = useRouter();
   const items = useCartStore((s) => s.items);
   const totalPrice = useCartStore((s) => s.totalPrice);
@@ -32,6 +36,13 @@ export function CheckoutForm() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Coupon state
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState("");
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponError, setCouponError] = useState("");
+  const [validating, setValidating] = useState(false);
 
   if (items.length === 0 && step === "shipping") {
     return (
@@ -65,6 +76,37 @@ export function CheckoutForm() {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
+  async function handleApplyCoupon() {
+    if (!couponInput.trim()) return;
+    setCouponError("");
+    setValidating(true);
+
+    try {
+      const subtotal = totalPrice();
+      const result = await validateCoupon(couponInput.trim(), subtotal);
+
+      if (result.valido) {
+        setAppliedCoupon(couponInput.trim().toUpperCase());
+        setCouponDiscount(result.descuento_monto);
+        onCouponApplied?.(couponInput.trim().toUpperCase(), result.descuento_monto);
+      } else {
+        setCouponError(result.mensaje);
+      }
+    } catch {
+      setCouponError("Error al validar el cupón. Intenta de nuevo.");
+    } finally {
+      setValidating(false);
+    }
+  }
+
+  function handleRemoveCoupon() {
+    setCouponInput("");
+    setAppliedCoupon("");
+    setCouponDiscount(0);
+    setCouponError("");
+    onCouponApplied?.("", 0);
+  }
+
   async function handleShippingSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -73,6 +115,7 @@ export function CheckoutForm() {
     try {
       const order = await createOrder({
         ...formData,
+        ...(appliedCoupon ? { codigo_cupon: appliedCoupon } : {}),
         items: items.map((item) => ({
           producto_id: item.product.id,
           cantidad: item.quantity,
@@ -139,6 +182,49 @@ export function CheckoutForm() {
       {error && (
         <p className="text-sm text-destructive">{error}</p>
       )}
+
+      {/* Coupon code */}
+      <div className="space-y-2">
+        <Label htmlFor="coupon_input">Código de descuento</Label>
+        <div className="flex gap-2">
+          <Input
+            id="coupon_input"
+            placeholder="BIENVENIDO10"
+            value={couponInput}
+            onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+            disabled={!!appliedCoupon || validating}
+            className="uppercase"
+          />
+          {appliedCoupon ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleRemoveCoupon}
+              className="shrink-0"
+            >
+              Quitar
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleApplyCoupon}
+              disabled={!couponInput.trim() || validating}
+              className="shrink-0"
+            >
+              {validating ? "..." : "Aplicar"}
+            </Button>
+          )}
+        </div>
+        {couponError && (
+          <p className="text-sm text-destructive">{couponError}</p>
+        )}
+        {appliedCoupon && (
+          <p className="text-sm text-green-600">
+            Cupón <span className="font-medium">{appliedCoupon}</span> aplicado — descuento de ${couponDiscount.toLocaleString()}
+          </p>
+        )}
+      </div>
 
       <div className="space-y-2">
         <Label htmlFor="direccion_envio">Dirección de envío</Label>

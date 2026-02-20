@@ -124,7 +124,9 @@ export interface Order {
   numero_pedido: string;
   estado: string;
   subtotal: number;
+  descuento_monto: number;
   total: number;
+  cupon_codigo: string | null;
   direccion_envio: string;
   ciudad: string;
   estado_envio: string;
@@ -151,7 +153,14 @@ export interface CreateOrderData {
   estado_envio: string;
   codigo_postal: string;
   notas?: string;
+  codigo_cupon?: string;
   items: { producto_id: number; cantidad: number }[];
+}
+
+export interface CuponValidation {
+  valido: boolean;
+  descuento_monto: number;
+  mensaje: string;
 }
 
 // ──────────────────────────────────────────────

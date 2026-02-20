@@ -1,9 +1,10 @@
 import type {
   ApiResponse,
-  PaginatedData,
+  CuponValidation,
   Order,
   OrderListItem,
   CreateOrderData,
+  PaginatedData,
 } from "@/shared/types/api";
 import { apiPost, apiGet } from "@/shared/lib/api";
 
@@ -37,6 +38,18 @@ export async function cancelOrder(numeroPedido: string) {
   const res = await apiPost<ApiResponse<Order>>(
     `/pedidos/${numeroPedido}/cancelar/`,
     {},
+    true,
+  );
+  return res.data;
+}
+
+export async function validateCoupon(
+  codigo: string,
+  subtotal: number,
+): Promise<CuponValidation> {
+  const res = await apiPost<ApiResponse<CuponValidation>>(
+    "/descuentos/validar/",
+    { codigo, subtotal },
     true,
   );
   return res.data;

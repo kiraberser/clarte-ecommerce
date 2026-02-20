@@ -4,7 +4,7 @@ Desacoplado de las views. Usado por la app de pagos al confirmar un pago.
 """
 import logging
 
-from django.db import transaction
+from django.db import models as db_models, transaction
 
 from .models import Pedido
 
@@ -52,6 +52,24 @@ def procesar_pedido_pagado(pedido_id):
         # Cambiar estado del pedido
         pedido.estado = Pedido.EstadoChoices.PAGADO
         pedido.save(update_fields=['estado', 'updated_at'])
+
+        # Registrar uso de cupón (si aplica)
+        if pedido.cupon_id:
+            from apps.descuentos.models import Cupon, CuponUso
+            # Incrementar usos de forma atómica
+            Cupon.objects.filter(id=pedido.cupon_id).update(
+                usos_actuales=db_models.F('usos_actuales') + 1
+            )
+            CuponUso.objects.create(
+                cupon_id=pedido.cupon_id,
+                pedido=pedido,
+                usuario=pedido.usuario,
+                descuento_aplicado=pedido.descuento_monto,
+            )
+            logger.info(
+                'Cupón id=%s consumido para pedido %s, descuento=%s',
+                pedido.cupon_id, pedido.numero_pedido, pedido.descuento_monto,
+            )
 
         logger.info(
             'Pedido %s procesado como pagado. Stock decrementado para %d items.',

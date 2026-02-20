@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
@@ -24,6 +25,7 @@ export function LoginForm() {
 
     try {
       await login({ username, password });
+      toast.success("Sesión iniciada correctamente.");
       router.push("/");
     } catch (err) {
       if (err instanceof ApiError) {

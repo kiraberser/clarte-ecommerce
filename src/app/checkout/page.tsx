@@ -1,5 +1,4 @@
-import { CheckoutForm } from "@/features/checkout/components/checkout-form";
-import { CheckoutSummary } from "@/features/checkout/components/checkout-summary";
+import { CheckoutClient } from "@/features/checkout/components/checkout-client";
 
 export const metadata = {
   title: "Checkout — Ocaso",
@@ -15,16 +14,7 @@ export default function CheckoutPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-5">
-        <div className="lg:col-span-3">
-          <CheckoutForm />
-        </div>
-        <div className="lg:col-span-2">
-          <div className="sticky top-24 border p-6">
-            <CheckoutSummary />
-          </div>
-        </div>
-      </div>
+      <CheckoutClient />
     </section>
   );
 }

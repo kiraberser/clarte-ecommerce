@@ -2,6 +2,8 @@
 Serializers de pedidos.
 Separados por responsabilidad: creación, listado y detalle.
 """
+from decimal import Decimal
+
 from django.db import transaction
 from rest_framework import serializers
 
@@ -67,12 +69,14 @@ class PedidoSerializer(serializers.ModelSerializer):
     usuario_nombre = serializers.SerializerMethodField()
     usuario_telefono = serializers.CharField(source='usuario.telefono', read_only=True)
 
+    cupon_codigo = serializers.CharField(source='cupon.codigo', read_only=True, default=None)
+
     class Meta:
         model = Pedido
         fields = [
             'id', 'numero_pedido', 'usuario', 'usuario_email',
             'usuario_nombre', 'usuario_telefono',
-            'estado', 'subtotal', 'total',
+            'estado', 'subtotal', 'descuento_monto', 'total', 'cupon_codigo',
             'direccion_envio', 'ciudad', 'estado_envio', 'codigo_postal',
             'metodo_pago', 'notas', 'items',
             'created_at', 'updated_at',
@@ -99,6 +103,7 @@ class CrearPedidoSerializer(serializers.Serializer):
     estado_envio = serializers.CharField(max_length=100)
     codigo_postal = serializers.CharField(max_length=10)
     notas = serializers.CharField(required=False, default='', allow_blank=True)
+    codigo_cupon = serializers.CharField(required=False, allow_blank=True, default='')
     items = ItemPedidoCrearSerializer(many=True, min_length=1)
 
     def validate_items(self, items):
@@ -130,15 +135,42 @@ class CrearPedidoSerializer(serializers.Serializer):
 
         return items
 
+    def validate(self, attrs):
+        """Valida el cupón (si se proporcionó) contra el subtotal proyectado."""
+        codigo_cupon = attrs.get('codigo_cupon', '').strip().upper()
+        if codigo_cupon:
+            from apps.descuentos.models import Cupon
+            try:
+                cupon = Cupon.objects.get(codigo=codigo_cupon)
+            except Cupon.DoesNotExist:
+                raise serializers.ValidationError({'codigo_cupon': 'Código de cupón no válido.'})
+
+            # Calcular subtotal proyectado desde los items ya validados
+            subtotal_proyectado = sum(
+                Decimal(str(Producto.objects.get(id=item['producto_id']).precio_final)) * item['cantidad']
+                for item in attrs.get('items', [])
+            )
+
+            valido, mensaje = cupon.es_valido(subtotal_proyectado)
+            if not valido:
+                raise serializers.ValidationError({'codigo_cupon': mensaje})
+
+            attrs['_cupon'] = cupon
+
+        return attrs
+
     def create(self, validated_data):
         """Crea pedido + items dentro de una transacción atómica."""
         items_data = validated_data.pop('items')
+        cupon = validated_data.pop('_cupon', None)
+        validated_data.pop('codigo_cupon', None)
         usuario = self.context['request'].user
 
         with transaction.atomic():
             # Crear pedido
             pedido = Pedido.objects.create(
                 usuario=usuario,
+                cupon=cupon,
                 direccion_envio=validated_data['direccion_envio'],
                 ciudad=validated_data['ciudad'],
                 estado_envio=validated_data['estado_envio'],

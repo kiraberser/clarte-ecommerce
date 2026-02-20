@@ -61,6 +61,21 @@ class Pedido(models.Model):
     estado_envio = models.CharField(_('estado (envío)'), max_length=100)
     codigo_postal = models.CharField(_('código postal'), max_length=10)
 
+    cupon = models.ForeignKey(
+        'descuentos.Cupon',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='pedidos',
+        verbose_name=_('cupón'),
+    )
+    descuento_monto = models.DecimalField(
+        _('monto de descuento'),
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+    )
+
     metodo_pago = models.CharField(_('método de pago'), max_length=50, blank=True, default='')
     mercadopago_payment_id = models.CharField(
         _('Mercado Pago payment ID'),
@@ -138,10 +153,15 @@ class Pedido(models.Model):
         )
 
     def calcular_totales(self):
-        """Recalcula subtotal y total a partir de los items."""
+        """Recalcula subtotal, descuento y total a partir de los items y el cupón."""
+        from decimal import Decimal
         self.subtotal = sum(item.subtotal for item in self.items.all())
-        self.total = self.subtotal  # Aquí se podrían agregar impuestos/envío
-        self.save(update_fields=['subtotal', 'total', 'updated_at'])
+        if self.cupon:
+            self.descuento_monto = self.cupon.calcular_descuento(self.subtotal)
+        else:
+            self.descuento_monto = Decimal('0')
+        self.total = max(Decimal('0'), self.subtotal - self.descuento_monto)
+        self.save(update_fields=['subtotal', 'descuento_monto', 'total', 'updated_at'])
 
 
 class ItemPedido(models.Model):

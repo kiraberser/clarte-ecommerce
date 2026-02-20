@@ -33,6 +33,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet";
+import { toast } from "sonner";
 import { useCartStore } from "@/features/cart/store/use-cart-store";
 import { useMounted } from "@/shared/hooks/use-mounted";
 import { CartSheet } from "@/features/cart/components/cart-sheet";
@@ -154,7 +155,7 @@ export function Navbar() {
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={() => logout()}
+                    onClick={() => { logout(); toast.success("Sesión cerrada."); }}
                     className="text-destructive focus:text-destructive"
                   >
                     <LogOut className="h-4 w-4" />
@@ -267,6 +268,7 @@ export function Navbar() {
                 <button
                   onClick={() => {
                     logout();
+                    toast.success("Sesión cerrada.");
                     setMobileMenuOpen(false);
                   }}
                   className="flex items-center gap-2 text-base font-medium text-destructive transition-colors hover:text-destructive/80"

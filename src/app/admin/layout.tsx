@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { useAuth } from "@/shared/lib/auth-context";
 import { AdminGuard } from "@/features/admin/components/admin-guard";
 import { Button } from "@/shared/components/ui/button";
@@ -56,6 +57,7 @@ export default function AdminLayout({
 
   const handleLogout = async () => {
     await logout();
+    toast.success("Sesión cerrada.");
     router.push("/login");
   };
 
