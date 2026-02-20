@@ -3,12 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Heart, Minus, Plus, Share2, Check } from "lucide-react";
+import { ChevronRight, Heart, Minus, Plus, Share2, Check, Link2, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import type { ProductDetail as ProductDetailType } from "@/shared/types/api";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/shared/components/ui/popover";
 import { cn } from "@/shared/lib/utils";
 import { useCartStore } from "@/features/cart/store/use-cart-store";
 import { useWishlistStore } from "@/features/products/store/use-wishlist-store";
@@ -33,16 +38,28 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
   const wishlisted = isWishlisted(product.id);
 
-  async function handleShare() {
-    const url = window.location.href;
-    if (navigator.share) {
-      await navigator.share({ title: product.nombre, url }).catch(() => {});
-    } else {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      toast.success("Enlace copiado al portapapeles");
-      setTimeout(() => setCopied(false), 2000);
-    }
+  async function handleCopyLink() {
+    await navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    toast.success("Enlace copiado al portapapeles");
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  function handleShareEmail() {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(product.nombre);
+    window.open(`mailto:?subject=${title}&body=${url}`, "_self");
+  }
+
+  function handleShareFacebook() {
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, "_blank", "noopener,noreferrer");
+  }
+
+  function handleShareX() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(product.nombre);
+    window.open(`https://x.com/intent/post?url=${url}&text=${text}`, "_blank", "noopener,noreferrer");
   }
 
   async function handleWishlist() {
@@ -212,18 +229,61 @@ export function ProductDetail({ product }: ProductDetailProps) {
               {wishlisted ? "Guardado" : "Guardar"}
             </button>
             <span className="text-muted-foreground/30">·</span>
-            <button
-              onClick={handleShare}
-              aria-label="Compartir producto"
-              className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {copied ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <Share2 className="h-4 w-4" />
-              )}
-              {copied ? "Copiado" : "Compartir"}
-            </button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  aria-label="Compartir producto"
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Compartir
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="top" align="start" className="w-auto p-2">
+                <div className="flex items-center gap-1">
+                  {/* Copy link */}
+                  <button
+                    onClick={handleCopyLink}
+                    aria-label="Copiar enlace"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border bg-background transition-colors hover:bg-secondary"
+                  >
+                    {copied ? (
+                      <Check className="h-4 w-4 text-foreground" />
+                    ) : (
+                      <Link2 className="h-4 w-4 text-foreground" />
+                    )}
+                  </button>
+                  {/* Email */}
+                  <button
+                    onClick={handleShareEmail}
+                    aria-label="Compartir por email"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border bg-background transition-colors hover:bg-secondary"
+                  >
+                    <Mail className="h-4 w-4 text-foreground" />
+                  </button>
+                  {/* Facebook */}
+                  <button
+                    onClick={handleShareFacebook}
+                    aria-label="Compartir en Facebook"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1877F2] transition-opacity hover:opacity-90"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-white">
+                      <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
+                    </svg>
+                  </button>
+                  {/* X (Twitter) */}
+                  <button
+                    onClick={handleShareX}
+                    aria-label="Compartir en X"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-black transition-opacity hover:opacity-80"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-white">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </motion.div>
       </div>
