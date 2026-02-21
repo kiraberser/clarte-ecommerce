@@ -1,7 +1,7 @@
 import Link from "next/link";
+import { Instagram, Facebook, Youtube, Twitter } from "lucide-react";
 import { Separator } from "@/shared/components/ui/separator";
 import { NewsletterForm } from "@/features/newsletter/components/newsletter-form";
-import GetYear from "./ui/year";
 
 const footerLinks = {
   nosotros: [
@@ -99,8 +99,32 @@ export function Footer() {
         </div>
 
         <Separator className="my-12" />
-        
-        <GetYear />
+
+        <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+          <span className="text-2xl font-light uppercase tracking-[0.4em] text-foreground">
+            OCASO
+          </span>
+          <div className="flex items-center gap-4">
+            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <Instagram className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
+            </a>
+            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+              <Facebook className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
+            </a>
+            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+              <Youtube className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
+            </a>
+            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X">
+              <Twitter className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
+            </a>
+          </div>
+        </div>
+
+        <Separator className="my-4" />
+
+        <p className="text-center text-xs text-muted-foreground sm:text-left">
+          © {new Date().getFullYear()} Ocaso · Iluminación de Autor
+        </p>
       </div>
     </footer>
   );

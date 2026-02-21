@@ -5,8 +5,16 @@ import Link from "next/link";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { motion, AnimatePresence } from "framer-motion";
+import type { ReactNode } from "react";
 
-const slides = [
+interface Slide {
+  tagline: string;
+  headline: string;
+  description: ReactNode;
+  cta: string;
+}
+
+const slides: Slide[] = [
   {
     tagline: "Iluminación de Autor",
     headline: "Ilumina tu Espacio",
@@ -17,8 +25,12 @@ const slides = [
   {
     tagline: "Tecnología & Diseño",
     headline: "Diseño 3D, Materializado en PLA",
-    description:
-      "Cada pieza nace como un modelo digital y cobra vida a través de impresión 3D en PLA ecológico con acabado artesanal.",
+    description: (
+      <>
+        Cada pieza nace como un modelo digital y cobra vida a través de impresión 3D en PLA{" "}
+        <span className="text-eco font-medium">ecológico</span> con acabado artesanal.
+      </>
+    ),
     cta: "Conocer Más",
   },
   {
