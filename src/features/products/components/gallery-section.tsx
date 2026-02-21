@@ -157,11 +157,15 @@ export function GallerySection() {
         </span>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 lg:grid-rows-3">
-        {/* Cell 1 — hero, 2×2, with CTA overlay */}
-        <div className="group relative col-span-1 row-span-1 lg:col-span-1 lg:row-span-2 overflow-hidden bg-secondary transition-transform duration-300 hover:scale-[0.99] hover:bg-secondary/80">
-          <div className="flex aspect-square lg:aspect-[3/4] h-full w-full flex-col items-center justify-center text-muted-foreground/60">
+      {/* Grid
+          Mobile:  2 cols, auto-rows — [1][2] / [3][4] / [5 full]
+          Desktop: 3 cols, auto-rows — [1·2col][2] / [1·2col][3] / [4][5·2col]
+      */}
+      <div className="grid auto-rows-[200px] grid-cols-2 gap-3 lg:auto-rows-[260px] lg:grid-cols-3">
+
+        {/* Cell 1 — hero: 1 col mobile | 2 cols × 2 rows desktop */}
+        <div className="group relative overflow-hidden bg-secondary transition-transform duration-300 hover:scale-[0.99] hover:bg-secondary/80 lg:col-span-2 lg:row-span-2">
+          <div className="flex h-full w-full flex-col items-center justify-center text-muted-foreground/60">
             <HeroLamp />
             <span className="mt-4 text-xs tracking-wide text-muted-foreground">{hero.label}</span>
           </div>
@@ -179,29 +183,30 @@ export function GallerySection() {
           </div>
         </div>
 
-        {/* Cell 2 */}
-        <div className="col-span-1 row-span-1 flex aspect-square flex-col items-center justify-center overflow-hidden bg-secondary text-muted-foreground/60 transition-transform duration-300 hover:scale-[0.99] hover:bg-secondary/80">
+        {/* Cell 2 — top right */}
+        <div className="flex h-full flex-col items-center justify-center overflow-hidden bg-secondary text-muted-foreground/60 transition-transform duration-300 hover:scale-[0.99] hover:bg-secondary/80">
           <Cell2Lamp />
           <span className="mt-3 text-xs tracking-wide text-muted-foreground">{cell2.label}</span>
         </div>
 
-        {/* Cell 3 */}
-        <div className="col-span-1 row-span-1 flex aspect-square flex-col items-center justify-center overflow-hidden bg-secondary text-muted-foreground/60 transition-transform duration-300 hover:scale-[0.99] hover:bg-secondary/80">
+        {/* Cell 3 — middle right */}
+        <div className="flex h-full flex-col items-center justify-center overflow-hidden bg-secondary text-muted-foreground/60 transition-transform duration-300 hover:scale-[0.99] hover:bg-secondary/80">
           <Cell3Lamp />
           <span className="mt-3 text-xs tracking-wide text-muted-foreground">{cell3.label}</span>
         </div>
 
         {/* Cell 4 — bottom left */}
-        <div className="col-span-1 row-span-1 flex aspect-square flex-col items-center justify-center overflow-hidden bg-secondary text-muted-foreground/60 transition-transform duration-300 hover:scale-[0.99] hover:bg-secondary/80">
+        <div className="flex h-full flex-col items-center justify-center overflow-hidden bg-secondary text-muted-foreground/60 transition-transform duration-300 hover:scale-[0.99] hover:bg-secondary/80">
           <Cell4Lamp />
           <span className="mt-3 text-xs tracking-wide text-muted-foreground">{cell4.label}</span>
         </div>
 
-        {/* Cell 5 — bottom right, spans 2 cols */}
-        <div className="col-span-1 row-span-1 lg:col-span-2 flex aspect-square lg:aspect-auto flex-col items-center justify-center overflow-hidden bg-secondary text-muted-foreground/60 transition-transform duration-300 hover:scale-[0.99] hover:bg-secondary/80">
+        {/* Cell 5 — bottom: full width mobile | 2 cols desktop */}
+        <div className="col-span-2 flex h-full flex-col items-center justify-center overflow-hidden bg-secondary text-muted-foreground/60 transition-transform duration-300 hover:scale-[0.99] hover:bg-secondary/80">
           <Cell5Lamp />
           <span className="mt-3 text-xs tracking-wide text-muted-foreground">{cell5.label}</span>
         </div>
+
       </div>
     </section>
   );
