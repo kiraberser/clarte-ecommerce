@@ -35,12 +35,10 @@ def procesar_post_pago(pago):
         pedido.numero_pedido, resultado.get('message', ''),
     )
 
-    # 2. Crear registro de venta (se activa cuando se implemente app ventas)
+    # 2. Crear registro de venta
     try:
         from apps.ventas.services import crear_venta_desde_pedido
         crear_venta_desde_pedido(pedido)
-    except ImportError:
-        logger.debug('App ventas aún no implementada. Omitiendo creación de venta.')
     except Exception as e:
         logger.error('Error al crear venta para pedido %s: %s', pedido.numero_pedido, e)
 

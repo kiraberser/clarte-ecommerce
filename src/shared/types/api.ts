@@ -36,13 +36,20 @@ export interface Product {
   destacado: boolean;
 }
 
+interface ProductDimensions {
+  alto?: string;
+  ancho?: string;
+  profundidad?: string;
+  peso?: string;
+}
+
 export interface ProductDetail extends Product {
   descripcion: string;
   sku: string;
   imagenes: string[];
   categoria_slug: string;
   stock: number;
-  dimensiones: Record<string, string>;
+  dimensiones: ProductDimensions;
   detalles_tecnicos: Record<string, string>;
   materiales: string[];
   created_at: string;
@@ -228,9 +235,17 @@ export interface SaleItem {
   subtotal: number;
 }
 
+interface SaleItemSnapshot {
+  nombre: string;
+  sku: string;
+  precio_unitario: string;
+  cantidad: number;
+  subtotal: string;
+}
+
 export interface SaleDetail extends Sale {
   usuario: number;
-  items_snapshot: object;
+  items_snapshot: SaleItemSnapshot[];
   items: SaleItem[];
 }
 
@@ -348,6 +363,21 @@ export interface AdminUser {
   is_staff: boolean;
   date_joined: string;
   last_login: string | null;
+}
+
+export interface AdminCoupon {
+  id: number;
+  codigo: string;
+  nombre: string;
+  tipo_descuento: "porcentaje" | "monto_fijo";
+  valor_descuento: string;
+  minimo_compra: string;
+  maximo_usos: number | null;
+  usos_actuales: number;
+  activo: boolean;
+  fecha_inicio: string | null;
+  fecha_fin: string | null;
+  created_at: string;
 }
 
 // ──────────────────────────────────────────────

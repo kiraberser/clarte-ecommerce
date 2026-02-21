@@ -4,6 +4,7 @@ import type {
   PaginatedData,
   AdminProduct,
   AdminCategory,
+  AdminCoupon,
   AdminOrderListItem,
   AdminOrder,
   AdminPayment,
@@ -98,6 +99,26 @@ export function updateCategory(id: number, data: Partial<AdminCategory>) {
 
 export function deleteCategory(id: number) {
   return apiDelete<void>(`/productos/admin/categorias/${id}/`, true);
+}
+
+// ──────────────────────────────────────────────
+// Cupones
+// ──────────────────────────────────────────────
+
+export function getAdminCoupons() {
+  return apiGet<ApiResponse<AdminCoupon[]>>("/descuentos/admin/", true);
+}
+
+export function createCoupon(data: Partial<AdminCoupon>) {
+  return apiPost<ApiResponse<AdminCoupon>>("/descuentos/admin/", data, true);
+}
+
+export function updateCoupon(id: number, data: Partial<AdminCoupon>) {
+  return apiPut<ApiResponse<AdminCoupon>>(`/descuentos/admin/${id}/`, data, true);
+}
+
+export function deleteCoupon(id: number) {
+  return apiDelete<void>(`/descuentos/admin/${id}/`, true);
 }
 
 // ──────────────────────────────────────────────
