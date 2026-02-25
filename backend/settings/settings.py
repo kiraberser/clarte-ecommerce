@@ -215,9 +215,12 @@ BREVO_TEMPLATE_REGISTRO = env.int('BREVO_TEMPLATE_REGISTRO', default=0)
 BREVO_TEMPLATE_PEDIDO = env.int('BREVO_TEMPLATE_PEDIDO', default=0)
 
 # ──────────────────────────────────────────────
+# OAUTH — Social Login
+# ──────────────────────────────────────────────
+GOOGLE_CLIENT_ID = env('GOOGLE_CLIENT_ID', default='')
+
+# ──────────────────────────────────────────────
 # URLs del proyecto
-
-
 # ──────────────────────────────────────────────
 FRONTEND_URL = env('FRONTEND_URL', default='http://localhost:3000')
 BACKEND_URL = env('BACKEND_URL', default='http://localhost:8000')

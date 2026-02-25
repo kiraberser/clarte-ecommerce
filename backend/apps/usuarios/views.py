@@ -4,6 +4,11 @@ Maneja registro, logout (blacklist JWT), perfil y cambio de contraseña.
 Login y refresh de tokens los provee SimpleJWT directamente en las URLs.
 """
 import logging
+import uuid
+
+import requests as http_requests
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -309,6 +314,185 @@ class CambioPasswordView(APIView):
                 'message': 'Contraseña actualizada exitosamente.',
                 'data': None,
                 'errors': None,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class GoogleLoginView(APIView):
+    """
+    POST /api/v1/auth/google/
+    Recibe el credential (ID token) del SDK de Google.
+    Verifica con Google, encuentra o crea el usuario, retorna JWT tokens.
+    Cuerpo esperado: { "credential": "<google_id_token>" }
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        credential = request.data.get('credential')
+        if not credential:
+            return Response(
+                {
+                    'success': False,
+                    'message': 'Token de Google requerido.',
+                    'data': None,
+                    'errors': {'credential': 'El campo credential es requerido.'},
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            id_info = id_token.verify_oauth2_token(
+                credential,
+                google_requests.Request(),
+                settings.GOOGLE_CLIENT_ID,
+            )
+        except ValueError as e:
+            logger.warning('Google ID token inválido: %s', e)
+            return Response(
+                {
+                    'success': False,
+                    'message': 'Token de Google inválido o expirado.',
+                    'data': None,
+                    'errors': {'credential': str(e)},
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        email = id_info.get('email', '').lower()
+        first_name = id_info.get('given_name', '')
+        last_name = id_info.get('family_name', '')
+
+        if not email:
+            return Response(
+                {
+                    'success': False,
+                    'message': 'No se pudo obtener el email de Google.',
+                    'data': None,
+                    'errors': {'email': 'Email no disponible en el token.'},
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        usuario, created = Usuario.objects.get_or_create(
+            email=email,
+            defaults={
+                'username': f"{email.split('@')[0]}_{uuid.uuid4().hex[:8]}",
+                'first_name': first_name,
+                'last_name': last_name,
+            },
+        )
+
+        if created:
+            usuario.set_unusable_password()
+            usuario.save()
+            logger.info('Usuario creado via Google OAuth: %s (ID: %s)', email, usuario.id)
+        else:
+            logger.info('Login via Google OAuth: %s (ID: %s)', email, usuario.id)
+
+        refresh = RefreshToken.for_user(usuario)
+        return Response(
+            {
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class FacebookLoginView(APIView):
+    """
+    POST /api/v1/auth/facebook/
+    Recibe accessToken y userID del SDK de Facebook.
+    Verifica con Graph API, encuentra o crea el usuario, retorna JWT tokens.
+    Cuerpo esperado: { "accessToken": "...", "userID": "..." }
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        access_token = request.data.get('accessToken')
+        user_id = request.data.get('userID')
+
+        if not access_token or not user_id:
+            return Response(
+                {
+                    'success': False,
+                    'message': 'accessToken y userID son requeridos.',
+                    'data': None,
+                    'errors': {'accessToken': 'Campos requeridos.'},
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        graph_url = (
+            f"https://graph.facebook.com/{user_id}"
+            f"?fields=id,name,first_name,last_name,email"
+            f"&access_token={access_token}"
+        )
+
+        try:
+            fb_response = http_requests.get(graph_url, timeout=10)
+            fb_data = fb_response.json()
+        except Exception as e:
+            logger.error('Error al contactar Facebook Graph API: %s', e)
+            return Response(
+                {
+                    'success': False,
+                    'message': 'Error al verificar con Facebook.',
+                    'data': None,
+                    'errors': {'accessToken': 'No se pudo verificar el token.'},
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        if 'error' in fb_data or fb_data.get('id') != user_id:
+            logger.warning('Facebook token inválido para userID %s', user_id)
+            return Response(
+                {
+                    'success': False,
+                    'message': 'Token de Facebook inválido.',
+                    'data': None,
+                    'errors': {'accessToken': 'El token no es válido para este usuario.'},
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        email = fb_data.get('email', '').lower()
+        first_name = fb_data.get('first_name', '')
+        last_name = fb_data.get('last_name', '')
+
+        if not email:
+            return Response(
+                {
+                    'success': False,
+                    'message': 'Facebook no proporcionó un email. Verifica los permisos de tu app.',
+                    'data': None,
+                    'errors': {'email': 'Email no disponible en esta cuenta de Facebook.'},
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        usuario, created = Usuario.objects.get_or_create(
+            email=email,
+            defaults={
+                'username': f"{email.split('@')[0]}_{uuid.uuid4().hex[:8]}",
+                'first_name': first_name,
+                'last_name': last_name,
+            },
+        )
+
+        if created:
+            usuario.set_unusable_password()
+            usuario.save()
+            logger.info('Usuario creado via Facebook OAuth: %s (ID: %s)', email, usuario.id)
+        else:
+            logger.info('Login via Facebook OAuth: %s (ID: %s)', email, usuario.id)
+
+        refresh = RefreshToken.for_user(usuario)
+        return Response(
+            {
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
             },
             status=status.HTTP_200_OK,
         )

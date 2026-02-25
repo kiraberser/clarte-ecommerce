@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "@/shared/lib/auth-context";
 import { SWRProvider } from "@/shared/lib/swr-config";
 import { StoreShell } from "@/shared/components/store-shell";
@@ -50,16 +51,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SWRProvider>
-          <AuthProvider>
-            <Suspense>
-              <StoreShell>{children}</StoreShell>
-            </Suspense>
-          </AuthProvider>
-        </SWRProvider>
-        <NewsletterModal />
-        <CookieBanner />
-        <Toaster position="bottom-right" richColors />
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""}>
+          <SWRProvider>
+            <AuthProvider>
+              <Suspense>
+                <StoreShell>{children}</StoreShell>
+              </Suspense>
+            </AuthProvider>
+          </SWRProvider>
+          <NewsletterModal />
+          <CookieBanner />
+          <Toaster position="bottom-right" richColors />
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

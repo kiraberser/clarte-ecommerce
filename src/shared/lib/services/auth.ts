@@ -65,3 +65,15 @@ export async function confirmPasswordReset(
 ) {
   return apiPost("/auth/reset-password/", { uid, token, password, password_confirm });
 }
+
+export async function loginWithGoogle(credential: string) {
+  const tokens = await apiPost<AuthTokens>("/auth/google/", { credential });
+  setTokens(tokens.access, tokens.refresh);
+  return tokens;
+}
+
+export async function loginWithFacebook(accessToken: string, userID: string) {
+  const tokens = await apiPost<AuthTokens>("/auth/facebook/", { accessToken, userID });
+  setTokens(tokens.access, tokens.refresh);
+  return tokens;
+}

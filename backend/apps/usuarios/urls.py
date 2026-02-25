@@ -18,6 +18,8 @@ auth_urlpatterns = [
     path('logout/', views.LogoutView.as_view(), name='auth-logout'),
     path('solicitar-reset/', views.SolicitarResetPasswordView.as_view(), name='auth-solicitar-reset'),
     path('reset-password/', views.ResetPasswordView.as_view(), name='auth-reset-password'),
+    path('google/', views.GoogleLoginView.as_view(), name='auth-google'),
+    path('facebook/', views.FacebookLoginView.as_view(), name='auth-facebook'),
 ]
 
 # Rutas de usuario (api/v1/usuarios/)
