@@ -13,7 +13,7 @@ export default function PoliticaPrivacidadPage() {
       <PolicyHeader
         title="Política de Privacidad"
         description="Tu privacidad es importante para nosotros. Esta política explica cómo recopilamos, usamos y protegemos tu información personal."
-        updatedAt="Enero 2025"
+        updatedAt="Febrero 2025"
       />
 
       <PolicySection title="1. Responsable del tratamiento">
@@ -34,7 +34,19 @@ export default function PoliticaPrivacidadPage() {
         <ul className="list-disc pl-5 space-y-1">
           <li>
             <strong className="text-foreground">Información de cuenta:</strong> nombre, correo
-            electrónico y contraseña al registrarte.
+            electrónico y contraseña al registrarte directamente en Ocaso.
+          </li>
+          <li>
+            <strong className="text-foreground">Inicio de sesión con Google:</strong> cuando
+            inicias sesión con tu cuenta de Google, recopilamos tu nombre completo, correo
+            electrónico, foto de perfil y demás datos que Google comparte a través de su API de
+            autenticación (como el identificador único de tu cuenta).
+          </li>
+          <li>
+            <strong className="text-foreground">Inicio de sesión con Facebook:</strong> cuando
+            inicias sesión con tu cuenta de Facebook, recopilamos tu nombre completo, correo
+            electrónico, género, fecha de cumpleaños y edad, de acuerdo con los permisos que
+            otorgues al momento de autorizar el acceso.
           </li>
           <li>
             <strong className="text-foreground">Información de compra:</strong> dirección de envío,
@@ -75,8 +87,9 @@ export default function PoliticaPrivacidadPage() {
             pedidos y gestionar tu cuenta.
           </li>
           <li>
-            <strong className="text-foreground">Consentimiento:</strong> para el envío de boletines
-            y comunicaciones de marketing.
+            <strong className="text-foreground">Consentimiento:</strong> para el envío de boletines,
+            comunicaciones de marketing e inicio de sesión con servicios de terceros (Google,
+            Facebook).
           </li>
           <li>
             <strong className="text-foreground">Interés legítimo:</strong> para mejorar nuestros
@@ -94,6 +107,33 @@ export default function PoliticaPrivacidadPage() {
           No vendemos ni alquilamos tu información personal. Compartimos datos únicamente con:
         </p>
         <ul className="list-disc pl-5 space-y-1">
+          <li>
+            <strong className="text-foreground">Google (Sign In with Google):</strong> utilizamos la
+            API de autenticación de Google para verificar tu identidad cuando inicias sesión con
+            Google. Consulta la{" "}
+            <a
+              href="https://policies.google.com/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground underline underline-offset-4"
+            >
+              Política de Privacidad de Google
+            </a>
+            .
+          </li>
+          <li>
+            <strong className="text-foreground">Facebook Login:</strong> utilizamos la API de
+            Facebook para verificar tu identidad cuando inicias sesión con Facebook. Consulta la{" "}
+            <a
+              href="https://www.facebook.com/policy.php"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground underline underline-offset-4"
+            >
+              Política de Privacidad de Facebook
+            </a>
+            .
+          </li>
           <li>
             <strong className="text-foreground">Mercado Pago:</strong> para procesar pagos de forma
             segura.
@@ -117,15 +157,61 @@ export default function PoliticaPrivacidadPage() {
         </p>
       </PolicySection>
 
-      <PolicySection title="6. Retención de datos">
+      <PolicySection title="6. Eliminación de datos" id="eliminacion-de-datos">
         <p>
-          Conservamos tu información personal mientras mantengas una cuenta activa o según sea
-          necesario para cumplir nuestras obligaciones legales. Puedes solicitar la eliminación de tu
-          cuenta y datos en cualquier momento.
+          De acuerdo con los requerimientos de las plataformas de inicio de sesión social (Facebook,
+          Google) y la normativa aplicable, tienes derecho a solicitar la eliminación de todos los
+          datos que Ocaso ha recopilado a través de estas integraciones.
+        </p>
+        <p className="mt-2">
+          <strong className="text-foreground">¿Cómo solicitar la eliminación de tus datos?</strong>
+        </p>
+        <ul className="list-disc pl-5 space-y-1 mt-1">
+          <li>
+            Envía un correo a{" "}
+            <a
+              href="mailto:ocaso.lamp@ocaso.com.mx"
+              className="text-foreground underline underline-offset-4"
+            >
+              ocaso.lamp@ocaso.com.mx
+            </a>{" "}
+            con el asunto <strong>&ldquo;Solicitud de eliminación de datos&rdquo;</strong> e indica
+            el correo electrónico asociado a tu cuenta.
+          </li>
+          <li>
+            Una vez verificada tu identidad, procederemos a eliminar tu cuenta y todos los datos
+            asociados en un plazo máximo de <strong>30 días hábiles</strong>.
+          </li>
+          <li>
+            Ten en cuenta que algunos datos podrán conservarse por el tiempo que sea necesario para
+            cumplir con obligaciones legales o fiscales.
+          </li>
+        </ul>
+        <p className="mt-2">
+          Si iniciaste sesión con Facebook, también puedes revocar el acceso de la aplicación Ocaso
+          desde tu configuración de Facebook:{" "}
+          <strong>Configuración &gt; Seguridad e inicio de sesión &gt; Apps y sitios web</strong>.
+          Sin embargo, esto no elimina automáticamente los datos ya recopilados en nuestros
+          sistemas, por lo que debes contactarnos por correo si deseas su eliminación completa.
         </p>
       </PolicySection>
 
-      <PolicySection title="7. Tus derechos">
+      <PolicySection title="7. Retención de datos">
+        <p>
+          Conservamos tu información personal mientras mantengas una cuenta activa o según sea
+          necesario para cumplir nuestras obligaciones legales. Puedes solicitar la eliminación de tu
+          cuenta y datos en cualquier momento escribiéndonos a{" "}
+          <a
+            href="mailto:ocaso.lamp@ocaso.com.mx"
+            className="text-foreground underline underline-offset-4"
+          >
+            ocaso.lamp@ocaso.com.mx
+          </a>
+          .
+        </p>
+      </PolicySection>
+
+      <PolicySection title="8. Tus derechos">
         <p>
           De acuerdo con la Ley Federal de Protección de Datos Personales en Posesión de los
           Particulares (LFPDPPP), tienes derecho a:
@@ -162,7 +248,7 @@ export default function PoliticaPrivacidadPage() {
         </p>
       </PolicySection>
 
-      <PolicySection title="8. Seguridad">
+      <PolicySection title="9. Seguridad">
         <p>
           Implementamos medidas de seguridad técnicas y organizativas para proteger tu información
           contra acceso no autorizado, pérdida o divulgación. Los pagos se procesan mediante
@@ -170,7 +256,7 @@ export default function PoliticaPrivacidadPage() {
         </p>
       </PolicySection>
 
-      <PolicySection title="9. Cookies">
+      <PolicySection title="10. Cookies">
         <p>
           Utilizamos cookies y tecnologías similares para mejorar tu experiencia. Consulta nuestra{" "}
           <a href="/legal/politica-cookies" className="text-foreground underline underline-offset-4">
@@ -180,7 +266,7 @@ export default function PoliticaPrivacidadPage() {
         </p>
       </PolicySection>
 
-      <PolicySection title="10. Cambios a esta política">
+      <PolicySection title="11. Cambios a esta política">
         <p>
           Podemos actualizar esta política ocasionalmente. Te notificaremos de cambios significativos
           por correo electrónico o mediante un aviso visible en el sitio.

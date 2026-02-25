@@ -32,12 +32,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (productsRes.ok) {
       const json = await productsRes.json();
       const products: SitemapProduct[] = json?.data?.results ?? [];
-      productEntries = products.map((p) => ({
-        url: `${SITE_URL}/products/${p.slug}`,
-        lastModified: new Date(p.updated_at),
-        changeFrequency: "weekly" as const,
-        priority: 0.8,
-      }));
+      productEntries = products.map((p) => {
+        const date = new Date(p.updated_at);
+        return {
+          url: `${SITE_URL}/products/${p.slug}`,
+          lastModified: isNaN(date.getTime()) ? new Date() : date,
+          changeFrequency: "weekly" as const,
+          priority: 0.8,
+        };
+      });
     }
   } catch {
     // silently fail — sitemap degrades gracefully
