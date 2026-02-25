@@ -247,7 +247,25 @@ BACKEND_URL = env('BACKEND_URL', default='http://localhost:8000')
 
 # ──────────────────────────────────────────────
 # LOGGING — Operaciones críticas (pagos, inventario, errores)
+# En producción (Railway) no hay FS persistente: solo consola.
+# En local con DEBUG=True se añade el handler de archivo.
 # ──────────────────────────────────────────────
+_log_handlers: dict = {
+    'console': {
+        'class': 'logging.StreamHandler',
+        'formatter': 'verbose',
+    },
+}
+
+if DEBUG:
+    _logs_dir = BASE_DIR / 'logs'
+    _logs_dir.mkdir(exist_ok=True)
+    _log_handlers['file'] = {
+        'class': 'logging.FileHandler',
+        'filename': _logs_dir / 'clarte.log',
+        'formatter': 'verbose',
+    }
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -257,21 +275,10 @@ LOGGING = {
             'style': '{',
         },
     },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'clarte.log',
-            'formatter': 'verbose',
-        },
-    },
+    'handlers': _log_handlers,
     'loggers': {
         'clarte': {
-            # En producción (Railway) no hay filesystem persistente; solo consola
-            'handlers': ['console'] if not DEBUG else ['console', 'file'],
+            'handlers': list(_log_handlers.keys()),
             'level': 'INFO',
             'propagate': False,
         },
