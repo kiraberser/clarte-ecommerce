@@ -7,6 +7,7 @@ from datetime import timedelta
 import os
 
 import environ
+import dj_database_url
 
 # ──────────────────────────────────────────────
 # BASE
@@ -56,6 +57,7 @@ INSTALLED_APPS = [
 # ──────────────────────────────────────────────
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Archivos estáticos en producción
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # CORS antes de CommonMiddleware
     'django.middleware.common.CommonMiddleware',
@@ -86,17 +88,23 @@ WSGI_APPLICATION = 'settings.wsgi.application'
 
 # ──────────────────────────────────────────────
 # BASE DE DATOS — PostgreSQL
+# Railway provee DATABASE_URL automáticamente; en local se usan variables individuales.
 # ──────────────────────────────────────────────
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME', default='clarte_db'),
-        'USER': env('DB_USER', default='postgres'),
-        'PASSWORD': env('DB_PASSWORD', default='jajalol123'),
-        'HOST': env('DB_HOST', default='localhost'),
-        'PORT': env('DB_PORT', default='5433'),
+DATABASE_URL = env('DATABASE_URL', default='')
+
+if DATABASE_URL:
+    DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': env('DB_NAME', default='clarte_db'),
+            'USER': env('DB_USER', default='postgres'),
+            'PASSWORD': env('DB_PASSWORD', default=''),
+            'HOST': env('DB_HOST', default='localhost'),
+            'PORT': env('DB_PORT', default='5433'),
+        }
     }
-}
 
 # ──────────────────────────────────────────────
 # MODELO DE USUARIO PERSONALIZADO
@@ -164,12 +172,23 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
 ])
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r'^https://.*\.ngrok-free\.app$',
+    r'^https://.*\.vercel\.app$',
 ]
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
     'http://localhost:3000',
     'http://127.0.0.1:3000',
 ])
 CORS_ALLOW_CREDENTIALS = True
+
+# ──────────────────────────────────────────────
+# SEGURIDAD — Producción (Railway usa HTTPS vía proxy)
+# ──────────────────────────────────────────────
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # ──────────────────────────────────────────────
 # INTERNACIONALIZACIÓN
@@ -184,6 +203,7 @@ USE_TZ = True
 # ──────────────────────────────────────────────
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
@@ -250,7 +270,8 @@ LOGGING = {
     },
     'loggers': {
         'clarte': {
-            'handlers': ['console', 'file'],
+            # En producción (Railway) no hay filesystem persistente; solo consola
+            'handlers': ['console'] if not DEBUG else ['console', 'file'],
             'level': 'INFO',
             'propagate': False,
         },

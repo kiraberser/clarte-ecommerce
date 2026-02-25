@@ -31,3 +31,5 @@ sib-api-v3-sdk>=7.6.0
 
 # Producción
 gunicorn>=22.0.0
+whitenoise>=6.6.0
+dj-database-url>=2.1.0
