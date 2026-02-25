@@ -30,6 +30,8 @@ class Pago(models.Model):
         on_delete=models.PROTECT,
         related_name='pagos',
         verbose_name=_('usuario'),
+        null=True,
+        blank=True,
     )
 
     # Identificadores de Mercado Pago

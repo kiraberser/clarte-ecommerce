@@ -39,6 +39,8 @@ class Pedido(models.Model):
         on_delete=models.PROTECT,
         related_name='pedidos',
         verbose_name=_('usuario'),
+        null=True,
+        blank=True,
     )
     numero_pedido = models.CharField(
         _('número de pedido'),
@@ -60,6 +62,10 @@ class Pedido(models.Model):
     ciudad = models.CharField(_('ciudad'), max_length=100)
     estado_envio = models.CharField(_('estado (envío)'), max_length=100)
     codigo_postal = models.CharField(_('código postal'), max_length=10)
+
+    guest_nombre = models.CharField(_('nombre (invitado)'), max_length=150, blank=True, default='')
+    guest_email = models.EmailField(_('email (invitado)'), blank=True, default='')
+    guest_telefono = models.CharField(_('teléfono (invitado)'), max_length=30, blank=True, default='')
 
     cupon = models.ForeignKey(
         'descuentos.Cupon',

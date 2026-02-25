@@ -195,8 +195,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 {quantity}
               </span>
               <button
-                className="flex h-10 w-10 items-center justify-center transition-colors hover:bg-secondary"
-                onClick={() => setQuantity((q) => q + 1)}
+                className="flex h-10 w-10 items-center justify-center transition-colors hover:bg-secondary disabled:opacity-40"
+                onClick={() => setQuantity((q) => Math.min(q + 1, product.stock))}
+                disabled={quantity >= product.stock}
                 aria-label="Aumentar cantidad"
               >
                 <Plus className="h-3.5 w-3.5" />

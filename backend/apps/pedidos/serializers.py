@@ -56,18 +56,23 @@ class PedidoListSerializer(serializers.ModelSerializer):
 
 class AdminPedidoListSerializer(PedidoListSerializer):
     """Serializer para listado de pedidos en el panel admin (incluye email)."""
-    usuario_email = serializers.CharField(source='usuario.email', read_only=True)
+    usuario_email = serializers.SerializerMethodField()
 
     class Meta(PedidoListSerializer.Meta):
         fields = PedidoListSerializer.Meta.fields + ['usuario_email']
+
+    def get_usuario_email(self, obj):
+        if obj.usuario_id:
+            return obj.usuario.email
+        return obj.guest_email or '(invitado)'
 
 
 class PedidoSerializer(serializers.ModelSerializer):
     """Serializer completo con items nested (detalle de pedido)."""
     items = ItemPedidoSerializer(many=True, read_only=True)
-    usuario_email = serializers.CharField(source='usuario.email', read_only=True)
+    usuario_email = serializers.SerializerMethodField()
     usuario_nombre = serializers.SerializerMethodField()
-    usuario_telefono = serializers.CharField(source='usuario.telefono', read_only=True)
+    usuario_telefono = serializers.SerializerMethodField()
 
     cupon_codigo = serializers.CharField(source='cupon.codigo', read_only=True, default=None)
 
@@ -86,10 +91,22 @@ class PedidoSerializer(serializers.ModelSerializer):
             'subtotal', 'total', 'created_at', 'updated_at',
         ]
 
+    def get_usuario_email(self, obj):
+        if obj.usuario_id:
+            return obj.usuario.email
+        return obj.guest_email
+
     def get_usuario_nombre(self, obj):
-        u = obj.usuario
-        nombre = f'{u.first_name} {u.last_name}'.strip()
-        return nombre or u.username
+        if obj.usuario_id:
+            u = obj.usuario
+            nombre = f'{u.first_name} {u.last_name}'.strip()
+            return nombre or u.username
+        return obj.guest_nombre or 'Invitado'
+
+    def get_usuario_telefono(self, obj):
+        if obj.usuario_id:
+            return obj.usuario.telefono
+        return obj.guest_telefono
 
 
 class CrearPedidoSerializer(serializers.Serializer):
@@ -105,6 +122,9 @@ class CrearPedidoSerializer(serializers.Serializer):
     notas = serializers.CharField(required=False, default='', allow_blank=True)
     codigo_cupon = serializers.CharField(required=False, allow_blank=True, default='')
     items = ItemPedidoCrearSerializer(many=True, min_length=1)
+    guest_nombre = serializers.CharField(max_length=150, required=False, allow_blank=True, default='')
+    guest_email = serializers.EmailField(required=False, allow_blank=True, default='')
+    guest_telefono = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
 
     def validate_items(self, items):
         """Valida que los productos existan, estén activos y tengan stock."""
@@ -136,7 +156,19 @@ class CrearPedidoSerializer(serializers.Serializer):
         return items
 
     def validate(self, attrs):
-        """Valida el cupón (si se proporcionó) contra el subtotal proyectado."""
+        """Valida campos de invitado (si no autenticado) y el cupón."""
+        request = self.context['request']
+        if not request.user.is_authenticated:
+            errors = {}
+            if not attrs.get('guest_nombre', '').strip():
+                errors['guest_nombre'] = 'El nombre es requerido para compras como invitado.'
+            if not attrs.get('guest_email', '').strip():
+                errors['guest_email'] = 'El email es requerido para compras como invitado.'
+            if not attrs.get('guest_telefono', '').strip():
+                errors['guest_telefono'] = 'El teléfono es requerido para compras como invitado.'
+            if errors:
+                raise serializers.ValidationError(errors)
+
         codigo_cupon = attrs.get('codigo_cupon', '').strip().upper()
         if codigo_cupon:
             from apps.descuentos.models import Cupon
@@ -164,12 +196,19 @@ class CrearPedidoSerializer(serializers.Serializer):
         items_data = validated_data.pop('items')
         cupon = validated_data.pop('_cupon', None)
         validated_data.pop('codigo_cupon', None)
-        usuario = self.context['request'].user
+        request = self.context['request']
+        usuario = request.user if request.user.is_authenticated else None
+        guest_nombre = validated_data.pop('guest_nombre', '')
+        guest_email = validated_data.pop('guest_email', '')
+        guest_telefono = validated_data.pop('guest_telefono', '')
 
         with transaction.atomic():
             # Crear pedido
             pedido = Pedido.objects.create(
                 usuario=usuario,
+                guest_nombre=guest_nombre,
+                guest_email=guest_email,
+                guest_telefono=guest_telefono,
                 cupon=cupon,
                 direccion_envio=validated_data['direccion_envio'],
                 ciudad=validated_data['ciudad'],

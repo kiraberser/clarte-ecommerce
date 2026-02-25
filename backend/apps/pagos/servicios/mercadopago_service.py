@@ -153,7 +153,7 @@ def procesar_pago_card(pedido, usuario, card_data):
 
     # 2. Construir payload para Payment API
     payer_data = card_data.get('payer', {})
-    payer_email = payer_data.get('email') or usuario.email
+    payer_email = payer_data.get('email') or (usuario.email if usuario else '') or pedido.guest_email
 
     identification = payer_data.get('identification', {})
     id_type = identification.get('type', '').strip()

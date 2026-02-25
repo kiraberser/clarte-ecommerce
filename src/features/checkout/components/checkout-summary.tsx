@@ -1,9 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import { CheckCircle } from "lucide-react";
 import { Separator } from "@/shared/components/ui/separator";
 import { useCartStore } from "@/features/cart/store/use-cart-store";
 import { useMounted } from "@/shared/hooks/use-mounted";
+
+const FREE_SHIPPING_THRESHOLD = 600;
 
 interface CheckoutSummaryProps {
   couponCode?: string;
@@ -28,6 +31,8 @@ export function CheckoutSummary({ couponCode, couponDiscount = 0 }: CheckoutSumm
 
   const subtotal = totalPrice();
   const finalTotal = Math.max(0, subtotal - couponDiscount);
+  const qualifiesForFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+  const remaining = FREE_SHIPPING_THRESHOLD - subtotal;
 
   return (
     <div className="space-y-6">
@@ -76,10 +81,26 @@ export function CheckoutSummary({ couponCode, couponDiscount = 0 }: CheckoutSumm
         </div>
       )}
 
-      <div className="flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">Envío</span>
-        <span>Gratis</span>
-      </div>
+      {qualifiesForFreeShipping ? (
+        <div className="flex items-center justify-between text-sm">
+          <span className="flex items-center gap-1.5 text-green-700">
+            <CheckCircle className="h-3.5 w-3.5" /> Envío gratis
+          </span>
+          <span className="text-green-700">$0</span>
+        </div>
+      ) : (
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>Envío</span>
+            <span className="text-xs">Gratis a partir de ${FREE_SHIPPING_THRESHOLD}</span>
+          </div>
+          {remaining <= 200 && (
+            <p className="text-xs text-muted-foreground">
+              Agrega ${remaining.toFixed(0)} más para envío gratis
+            </p>
+          )}
+        </div>
+      )}
 
       <Separator />
 

@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import { toast } from "sonner";
 import { swrFetcher } from "@/shared/lib/api";
 import {
   AdminDataTable,
@@ -74,14 +75,24 @@ export default function AdminProductsPage() {
   }, []);
 
   const handleCreate = async (formData: Record<string, unknown>) => {
-    await createProduct(formData);
-    mutate();
+    try {
+      await createProduct(formData);
+      await mutate();
+      toast.success("Producto creado.");
+    } catch {
+      toast.error("Error al crear el producto.");
+    }
   };
 
   const handleEdit = async (formData: Record<string, unknown>) => {
     if (!editingProduct) return;
-    await updateProduct(editingProduct.id, formData);
-    mutate();
+    try {
+      await updateProduct(editingProduct.id, formData);
+      await mutate();
+      toast.success("Producto actualizado.");
+    } catch {
+      toast.error("Error al actualizar el producto.");
+    }
   };
 
   const handleDelete = async () => {
@@ -89,16 +100,23 @@ export default function AdminProductsPage() {
     setDeleteLoading(true);
     try {
       await deleteProduct(deleteTarget.id);
-      mutate();
+      await mutate();
       setDeleteTarget(null);
+      toast.success("Producto eliminado.");
+    } catch {
+      toast.error("Error al eliminar el producto.");
     } finally {
       setDeleteLoading(false);
     }
   };
 
   const handleToggleActive = async (product: AdminProduct) => {
-    await updateProduct(product.id, { activo: !product.activo } as Partial<AdminProduct>);
-    mutate();
+    try {
+      await updateProduct(product.id, { activo: !product.activo } as Partial<AdminProduct>);
+      await mutate();
+    } catch {
+      toast.error("Error al actualizar estado.");
+    }
   };
 
   const columns: Column<AdminProduct>[] = [

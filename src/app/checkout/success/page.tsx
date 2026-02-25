@@ -6,7 +6,7 @@ export const metadata = {
 
 export default function CheckoutSuccessPage() {
   return (
-    <section className="mx-auto flex min-h-[60vh] max-w-7xl items-center justify-center px-6 py-16 lg:px-8">
+    <section className="mx-auto max-w-3xl px-6 py-16 lg:px-8">
       <CheckoutSuccess />
     </section>
   );

@@ -73,7 +73,7 @@ class ProcesarPagoCardView(APIView):
     POST /api/v1/pagos/procesar-card/
     Procesa un pago con tarjeta usando datos del Card Payment Brick.
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         logger.info('ProcesarPagoCard request.data: %s', request.data)
@@ -90,16 +90,16 @@ class ProcesarPagoCardView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        pedido = get_object_or_404(
-            Pedido,
-            id=serializer.validated_data['pedido_id'],
-            usuario=request.user,
-        )
+        pedido_id = serializer.validated_data['pedido_id']
+        if request.user.is_authenticated:
+            pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
+        else:
+            pedido = get_object_or_404(Pedido, id=pedido_id, usuario__isnull=True)
 
         try:
             resultado = procesar_pago_card(
                 pedido,
-                request.user,
+                request.user if request.user.is_authenticated else None,
                 serializer.validated_data,
             )
         except ValueError as e:

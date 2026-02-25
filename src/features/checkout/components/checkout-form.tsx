@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Lock } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -11,21 +11,31 @@ import { useAuth } from "@/shared/lib/auth-context";
 import { createOrder, validateCoupon } from "@/shared/lib/services/orders";
 import { ApiError } from "@/shared/lib/api";
 import { CardPaymentBrick } from "@/features/checkout/components/card-payment";
+import type { Order } from "@/shared/types/api";
 
 interface CheckoutFormProps {
+  step: 1 | 2;
+  onStepChange: (s: 1 | 2 | 3) => void;
+  onOrderCreated: (order: Order) => void;
   onCouponApplied?: (code: string, discount: number) => void;
+  onPaymentSuccess: () => void;
 }
 
-export function CheckoutForm({ onCouponApplied }: CheckoutFormProps) {
-  const router = useRouter();
+export function CheckoutForm({
+  step,
+  onStepChange,
+  onOrderCreated,
+  onCouponApplied,
+  onPaymentSuccess,
+}: CheckoutFormProps) {
   const items = useCartStore((s) => s.items);
   const totalPrice = useCartStore((s) => s.totalPrice);
   const clearCart = useCartStore((s) => s.clearCart);
   const { isAuthenticated, user } = useAuth();
 
-  const [step, setStep] = useState<"shipping" | "payment">("shipping");
   const [orderId, setOrderId] = useState<number | null>(null);
   const [orderTotal, setOrderTotal] = useState<number>(0);
+  const [guestEmail, setGuestEmail] = useState<string>("");
 
   const [formData, setFormData] = useState({
     direccion_envio: "",
@@ -33,6 +43,9 @@ export function CheckoutForm({ onCouponApplied }: CheckoutFormProps) {
     estado_envio: "",
     codigo_postal: "",
     notas: "",
+    guest_nombre: "",
+    guest_email: "",
+    guest_telefono: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,29 +57,14 @@ export function CheckoutForm({ onCouponApplied }: CheckoutFormProps) {
   const [couponError, setCouponError] = useState("");
   const [validating, setValidating] = useState(false);
 
-  if (items.length === 0 && step === "shipping") {
+  if (items.length === 0 && step === 1) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-lg text-muted-foreground">
-          Tu carrito está vacío.
-        </p>
+        <p className="text-lg text-muted-foreground">Tu carrito está vacío.</p>
         <Link href="/collection">
           <Button variant="outline" className="mt-6">
             Ver Colección
           </Button>
-        </Link>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-lg text-muted-foreground">
-          Inicia sesión para continuar con tu compra.
-        </p>
-        <Link href="/login">
-          <Button className="mt-6">Iniciar Sesión</Button>
         </Link>
       </div>
     );
@@ -123,7 +121,9 @@ export function CheckoutForm({ onCouponApplied }: CheckoutFormProps) {
       });
       setOrderId(order.id);
       setOrderTotal(order.total);
-      setStep("payment");
+      setGuestEmail(formData.guest_email);
+      onOrderCreated(order);
+      onStepChange(2);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.data.message || "Error al crear el pedido.");
@@ -137,21 +137,26 @@ export function CheckoutForm({ onCouponApplied }: CheckoutFormProps) {
 
   function handlePaymentSuccess() {
     clearCart();
-    router.push("/checkout/success");
+    onPaymentSuccess();
   }
 
   const isValid =
     formData.direccion_envio.trim() !== "" &&
     formData.ciudad.trim() !== "" &&
     formData.estado_envio.trim() !== "" &&
-    formData.codigo_postal.trim() !== "";
+    formData.codigo_postal.trim() !== "" &&
+    (isAuthenticated || (
+      formData.guest_nombre.trim() !== "" &&
+      formData.guest_email.trim() !== "" &&
+      formData.guest_telefono.trim() !== ""
+    ));
 
-  if (step === "payment" && orderId) {
+  if (step === 2 && orderId) {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => setStep("shipping")}
+            onClick={() => onStepChange(1)}
             className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors"
           >
             &larr; Volver a datos de envío
@@ -170,17 +175,62 @@ export function CheckoutForm({ onCouponApplied }: CheckoutFormProps) {
         <CardPaymentBrick
           amount={orderTotal}
           pedidoId={orderId}
-          payerEmail={user?.email ?? ""}
+          payerEmail={user?.email ?? guestEmail}
           onSuccess={handlePaymentSuccess}
         />
+
+        <div className="flex items-center justify-center gap-2 pt-2 text-xs text-muted-foreground">
+          <Lock className="h-3.5 w-3.5" strokeWidth={1.5} />
+          <span>Pago seguro con cifrado SSL/TLS · Powered by Mercado Pago</span>
+        </div>
       </div>
     );
   }
 
   return (
     <form onSubmit={handleShippingSubmit} className="space-y-6">
-      {error && (
-        <p className="text-sm text-destructive">{error}</p>
+      {error && <p className="text-sm text-destructive">{error}</p>}
+
+      {/* Guest contact fields */}
+      {!isAuthenticated && (
+        <div className="space-y-4 rounded-lg border p-4">
+          <p className="text-sm font-medium">Datos de contacto</p>
+          <div className="space-y-2">
+            <Label htmlFor="guest_nombre">Nombre completo</Label>
+            <Input
+              id="guest_nombre"
+              name="guest_nombre"
+              placeholder="María García"
+              value={formData.guest_nombre}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="guest_email">Correo electrónico</Label>
+            <Input
+              id="guest_email"
+              name="guest_email"
+              type="email"
+              placeholder="correo@ejemplo.com"
+              value={formData.guest_email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="guest_telefono">Teléfono</Label>
+            <Input
+              id="guest_telefono"
+              name="guest_telefono"
+              type="tel"
+              placeholder="+52 55 1234 5678"
+              value={formData.guest_telefono}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        </div>
       )}
 
       {/* Coupon code */}
@@ -216,12 +266,11 @@ export function CheckoutForm({ onCouponApplied }: CheckoutFormProps) {
             </Button>
           )}
         </div>
-        {couponError && (
-          <p className="text-sm text-destructive">{couponError}</p>
-        )}
+        {couponError && <p className="text-sm text-destructive">{couponError}</p>}
         {appliedCoupon && (
           <p className="text-sm text-green-600">
-            Cupón <span className="font-medium">{appliedCoupon}</span> aplicado — descuento de ${couponDiscount.toLocaleString()}
+            Cupón <span className="font-medium">{appliedCoupon}</span> aplicado —
+            descuento de ${couponDiscount.toLocaleString()}
           </p>
         )}
       </div>

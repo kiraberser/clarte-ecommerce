@@ -31,14 +31,15 @@ class CrearPedidoView(generics.CreateAPIView):
     Crea un nuevo pedido para el usuario autenticado.
     """
     serializer_class = CrearPedidoSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         pedido = serializer.save()
 
-        logger.info('Pedido creado: %s por usuario %s', pedido.numero_pedido, request.user.id)
+        user_id = request.user.id if request.user.is_authenticated else 'guest'
+        logger.info('Pedido creado: %s por usuario %s', pedido.numero_pedido, user_id)
 
         return Response(
             {

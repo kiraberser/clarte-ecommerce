@@ -45,7 +45,7 @@ export function createProduct(data: Partial<AdminProduct>) {
 }
 
 export function updateProduct(id: number, data: Partial<AdminProduct>) {
-  return apiPut<ApiResponse<AdminProduct>>(
+  return apiPatch<ApiResponse<AdminProduct>>(
     `/productos/admin/productos/${id}/`,
     data,
     true,

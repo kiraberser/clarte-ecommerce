@@ -55,15 +55,20 @@ export default function AccountPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.first_name.trim()) {
+      setError("El nombre es requerido.");
+      return;
+    }
     setSaving(true);
     setError(null);
 
     try {
       await updateProfile(form);
-      await refreshUser();
       toast.success("Perfil actualizado correctamente.");
+      refreshUser().catch(() => {});
     } catch {
       setError("Error al actualizar el perfil.");
+      toast.error("Error al actualizar el perfil.");
     } finally {
       setSaving(false);
     }

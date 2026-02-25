@@ -162,6 +162,10 @@ export interface CreateOrderData {
   notas?: string;
   codigo_cupon?: string;
   items: { producto_id: number; cantidad: number }[];
+  // Guest fields (required when unauthenticated):
+  guest_nombre?: string;
+  guest_email?: string;
+  guest_telefono?: string;
 }
 
 export interface CuponValidation {
