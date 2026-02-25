@@ -169,6 +169,8 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    'https://ocaso.com.mx',
+    'https://www.ocaso.com.mx',
 ])
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r'^https://.*\.ngrok-free\.app$',
@@ -177,6 +179,8 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    'https://ocaso.com.mx',
+    'https://www.ocaso.com.mx',
 ])
 CORS_ALLOW_CREDENTIALS = True
 
