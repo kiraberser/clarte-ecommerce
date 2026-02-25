@@ -66,8 +66,8 @@ export async function confirmPasswordReset(
   return apiPost("/auth/reset-password/", { uid, token, password, password_confirm });
 }
 
-export async function loginWithGoogle(credential: string) {
-  const tokens = await apiPost<AuthTokens>("/auth/google/", { credential });
+export async function loginWithGoogle(access_token: string) {
+  const tokens = await apiPost<AuthTokens>("/auth/google/", { access_token });
   setTokens(tokens.access, tokens.refresh);
   return tokens;
 }

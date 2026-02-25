@@ -322,46 +322,59 @@ class CambioPasswordView(APIView):
 class GoogleLoginView(APIView):
     """
     POST /api/v1/auth/google/
-    Recibe el credential (ID token) del SDK de Google.
-    Verifica con Google, encuentra o crea el usuario, retorna JWT tokens.
-    Cuerpo esperado: { "credential": "<google_id_token>" }
+    Recibe el access_token del SDK de Google (useGoogleLogin).
+    Verifica con la userinfo API de Google, encuentra o crea el usuario, retorna JWT tokens.
+    Cuerpo esperado: { "access_token": "<google_access_token>" }
     """
     permission_classes = [AllowAny]
 
     def post(self, request):
-        credential = request.data.get('credential')
-        if not credential:
+        access_token = request.data.get('access_token')
+        if not access_token:
             return Response(
                 {
                     'success': False,
                     'message': 'Token de Google requerido.',
                     'data': None,
-                    'errors': {'credential': 'El campo credential es requerido.'},
+                    'errors': {'access_token': 'El campo access_token es requerido.'},
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
-            id_info = id_token.verify_oauth2_token(
-                credential,
-                google_requests.Request(),
-                settings.GOOGLE_CLIENT_ID,
+            userinfo_response = http_requests.get(
+                'https://www.googleapis.com/oauth2/v3/userinfo',
+                headers={'Authorization': f'Bearer {access_token}'},
+                timeout=10,
             )
-        except ValueError as e:
-            logger.warning('Google ID token inválido: %s', e)
+            userinfo = userinfo_response.json()
+        except Exception as e:
+            logger.error('Error al contactar Google userinfo API: %s', e)
             return Response(
                 {
                     'success': False,
-                    'message': 'Token de Google inválido o expirado.',
+                    'message': 'Error al verificar con Google.',
                     'data': None,
-                    'errors': {'credential': str(e)},
+                    'errors': {'access_token': 'No se pudo verificar el token.'},
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        if 'error' in userinfo or not userinfo.get('email_verified'):
+            logger.warning('Google userinfo inválido: %s', userinfo)
+            return Response(
+                {
+                    'success': False,
+                    'message': 'Token de Google inválido o email no verificado.',
+                    'data': None,
+                    'errors': {'access_token': 'Token inválido o email sin verificar.'},
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        email = id_info.get('email', '').lower()
-        first_name = id_info.get('given_name', '')
-        last_name = id_info.get('family_name', '')
+        email = userinfo.get('email', '').lower()
+        first_name = userinfo.get('given_name', '')
+        last_name = userinfo.get('family_name', '')
 
         if not email:
             return Response(
