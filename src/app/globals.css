@@ -1,41 +1,48 @@
 @import "tailwindcss";
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 0 0% 7%;
+  /* ── Ocaso Clean White Palette ── */
+  --background: 0 0% 100%;          /* #FFFFFF — white */
+  --background-soft: 0 0% 97%;      /* #F8F8F8 — off-white for cards */
+  --foreground: 0 0% 9%;            /* #171717 — near-black */
 
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 7%;
+  --card: 0 0% 97%;
+  --card-foreground: 0 0% 9%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 7%;
+  --popover-foreground: 0 0% 9%;
 
-  --primary: 0 0% 7%;
-  --primary-foreground: 0 0% 98%;
+  --primary: 24 81% 54%;           /* #E9762B — sunset orange */
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 0 0% 96%;
-  --secondary-foreground: 0 0% 7%;
+  --secondary: 147 75% 16%;        /* #0D4715 — deep forest green */
+  --secondary-foreground: 0 0% 100%;
 
-  --muted: 0 0% 96%;
-  --muted-foreground: 0 0% 45%;
+  --muted: 0 0% 93%;               /* light gray */
+  --muted-foreground: 0 0% 40%;    /* medium gray */
 
-  --accent: 0 0% 96%;
-  --accent-foreground: 0 0% 7%;
+  --accent: 0 0% 95%;
+  --accent-foreground: 0 0% 9%;
 
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
+  --destructive: 0 84% 40%;
+  --destructive-foreground: 0 0% 100%;
 
-  --border: 0 0% 90%;
+  --border: 0 0% 90%;              /* light gray border */
   --input: 0 0% 90%;
-  --ring: 0 0% 7%;
+  --ring: 24 81% 54%;              /* orange ring for focus */
 
   --radius: 0.5rem;
 
-  --eco: 142 22% 44%;
+  --eco: 143 22% 32%;              /* sage green */
+  --sunset: 24 81% 54%;            /* #E9762B */
+  --forest: 147 75% 16%;           /* #0D4715 */
+  --sage: 143 22% 32%;             /* #41644A */
+  --linen: 0 0% 100%;              /* white (was cream) */
 }
 
 @theme inline {
   --color-background: hsl(var(--background));
+  --color-background-soft: hsl(var(--background-soft));
   --color-foreground: hsl(var(--foreground));
 
   --color-card: hsl(var(--card));
@@ -62,18 +69,31 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+
   --color-eco: hsl(var(--eco));
+  --color-sunset: hsl(var(--sunset));
+  --color-forest: hsl(var(--forest));
+  --color-sage: hsl(var(--sage));
+  --color-linen: hsl(var(--linen));
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-sans: var(--font-work-sans), system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
   --font-mono: var(--font-geist-mono), monospace;
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in: fade-in 0.6s ease-out;
+  --animate-fade-in-up: fade-in-up 0.6s ease-out;
+  --animate-slide-in-right: slide-in-right 0.5s ease-out;
+  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-glow-pulse: glow-pulse 2s ease-in-out infinite;
+  --animate-draw-line: draw-line 0.4s ease-out forwards;
+  --animate-text-reveal: text-reveal 0.8s cubic-bezier(0.77, 0, 0.175, 1) forwards;
 
   @keyframes accordion-down {
     from { height: 0; }
@@ -83,6 +103,41 @@
   @keyframes accordion-up {
     from { height: var(--radix-accordion-content-height); }
     to { height: 0; }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slide-in-right {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(233, 118, 43, 0); }
+    50% { box-shadow: 0 0 20px 4px rgba(233, 118, 43, 0.15); }
+  }
+
+  @keyframes draw-line {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  @keyframes text-reveal {
+    from { clip-path: inset(0 100% 0 0); }
+    to { clip-path: inset(0 0 0 0); }
   }
 }
 
@@ -98,6 +153,104 @@ body {
   }
 }
 
+/* ── Grain texture overlay ── */
+.grain-overlay::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ── Warm shimmer for skeletons ── */
+.skeleton-warm {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(0 0% 95%) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+/* ── Animated underline for links ── */
+.animated-underline {
+  position: relative;
+}
+.animated-underline::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.3s ease, left 0.3s ease;
+}
+.animated-underline:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+/* ── Sunset glow hover for cards ── */
+.sunset-glow {
+  transition: box-shadow 0.4s ease;
+}
+.sunset-glow:hover {
+  box-shadow: 0 8px 30px -8px rgba(233, 118, 43, 0.2);
+}
+
+/* ── Button wipe effect ── */
+.btn-wipe {
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+}
+.btn-wipe::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: hsl(var(--secondary));
+  transform: translateX(-101%);
+  transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: -1;
+}
+.btn-wipe:hover::before {
+  transform: translateX(0);
+}
+
+/* ── Display font utility ── */
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* ── Logo font utility ── */
+.font-logo {
+  font-family: var(--font-agbalumo), cursive;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .grain-overlay::before {
+    display: none;
+  }
+}
+
+/* ── Admin dark mode (preserved) ── */
 .admin-dark {
   --background: 0 0% 6%;
   --foreground: 0 0% 93%;

@@ -32,7 +32,7 @@ export default async function CollectionPage({
     <section className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
       <FadeIn>
         <div className="mb-12">
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-forest sm:text-4xl">
             {categoryLabel ?? "Colección"}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -76,10 +76,10 @@ export default async function CollectionPage({
                   <a
                     key={p}
                     href={`/collection?${params.toString()}`}
-                    className={`flex h-10 w-10 items-center justify-center border text-sm transition-colors hover:bg-foreground hover:text-background ${
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg border text-sm transition-all hover:border-sunset hover:bg-sunset hover:text-white ${
                       p === productsData.current_page
-                        ? "bg-foreground text-background"
-                        : ""
+                        ? "border-sunset bg-sunset text-white"
+                        : "border-foreground/15"
                     }`}
                   >
                     {p}

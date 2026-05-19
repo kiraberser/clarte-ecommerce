@@ -18,8 +18,8 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
       <Link
         href="/collection"
         className={cn(
-          "border px-4 py-2 text-sm transition-colors hover:bg-foreground hover:text-background",
-          !activeCategory && "bg-foreground text-background"
+          "rounded-lg border border-foreground/15 px-4 py-2 text-sm transition-all hover:border-sunset hover:bg-sunset hover:text-white",
+          !activeCategory && "border-sunset bg-sunset text-white"
         )}
       >
         Todas
@@ -29,8 +29,8 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
           key={cat.slug}
           href={`/collection?category=${cat.slug}`}
           className={cn(
-            "border px-4 py-2 text-sm transition-colors hover:bg-foreground hover:text-background",
-            activeCategory === cat.slug && "bg-foreground text-background"
+            "rounded-lg border border-foreground/15 px-4 py-2 text-sm transition-all hover:border-sunset hover:bg-sunset hover:text-white",
+            activeCategory === cat.slug && "border-sunset bg-sunset text-white"
           )}
         >
           {cat.nombre}
