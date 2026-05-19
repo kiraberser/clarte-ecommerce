@@ -14,7 +14,7 @@ import {
   ChevronDown,
   Heart,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SITE_NAME, NAV_LINKS } from "@/shared/lib/constants";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
@@ -45,6 +45,7 @@ export function Navbar() {
   const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const mounted = useMounted();
   const totalItems = useCartStore((s) =>
     s.items.reduce((sum, item) => sum + item.quantity, 0),
@@ -53,15 +54,29 @@ export function Navbar() {
 
   const displayName = user?.first_name || user?.username || "";
 
+  useEffect(() => {
+    function handleScroll() {
+      setScrolled(window.scrollY > 20);
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md">
+      <header
+        className={`sticky top-0 z-40 w-full border-b transition-all duration-500 ${
+          scrolled
+            ? "border-border bg-white shadow-sm"
+            : "border-transparent bg-white/95 backdrop-blur-md"
+        }`}
+      >
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="text-foreground/60 hover:bg-foreground/5 hover:text-foreground md:hidden"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Menú"
             >
@@ -70,7 +85,7 @@ export function Navbar() {
 
             <Link
               href="/"
-              className="text-lg font-semibold uppercase tracking-widest"
+              className="font-logo text-xl tracking-[0.08em] text-sunset"
             >
               {SITE_NAME}
             </Link>
@@ -81,7 +96,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="animated-underline inline-flex items-center gap-1.5 text-sm text-foreground/60 transition-colors hover:text-foreground"
               >
                 {link.label}
                 <NavLinkIndicator />
@@ -93,6 +108,7 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="icon"
+              className="text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
               onClick={() => setSearchOpen(true)}
               aria-label="Buscar"
             >
@@ -104,7 +120,7 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="hidden gap-1.5 text-sm md:inline-flex"
+                    className="hidden gap-1.5 text-sm text-foreground/60 hover:bg-foreground/5 hover:text-foreground md:inline-flex"
                   >
                     <User className="h-4 w-4" />
                     <span className="max-w-[100px] truncate">
@@ -168,7 +184,7 @@ export function Navbar() {
                 variant="ghost"
                 size="icon"
                 asChild
-                className="hidden md:inline-flex"
+                className="hidden text-foreground/60 hover:bg-foreground/5 hover:text-foreground md:inline-flex"
               >
                 <Link href="/login" aria-label="Cuenta">
                   <User className="h-4 w-4" />
@@ -179,13 +195,13 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              className="relative"
+              className="relative text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
               onClick={() => setCartOpen(true)}
               aria-label="Carrito"
             >
               <ShoppingBag className="h-4 w-4" />
               {mounted && totalItems > 0 && (
-                <Badge className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center p-0 text-[10px]">
+                <Badge className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center bg-sunset p-0 text-[10px] text-white">
                   {totalItems}
                 </Badge>
               )}
@@ -196,9 +212,9 @@ export function Navbar() {
 
       {/* Mobile menu */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side="left">
+        <SheetContent side="left" className="border-border bg-white">
           <SheetHeader>
-            <SheetTitle className="text-lg uppercase tracking-widest">
+            <SheetTitle className="font-logo text-lg tracking-[0.08em] text-sunset">
               {SITE_NAME}
             </SheetTitle>
           </SheetHeader>
@@ -208,24 +224,24 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="inline-flex items-center gap-1.5 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="inline-flex items-center gap-1.5 text-base font-medium text-foreground/60 transition-colors hover:text-foreground"
               >
                 {link.label}
                 <NavLinkIndicator />
               </Link>
             ))}
 
-            <Separator />
+            <Separator className="bg-border" />
 
             {mounted && isAuthenticated ? (
               <>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-foreground/40">
                   Hola, {displayName}
                 </span>
                 <Link
                   href="/account"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  className="flex items-center gap-2 text-base font-medium text-foreground/60 transition-colors hover:text-foreground"
                 >
                   <UserCog className="h-4 w-4" />
                   Mi Cuenta
@@ -233,7 +249,7 @@ export function Navbar() {
                 <Link
                   href="/orders"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  className="flex items-center gap-2 text-base font-medium text-foreground/60 transition-colors hover:text-foreground"
                 >
                   <Package className="h-4 w-4" />
                   Mis Pedidos
@@ -241,7 +257,7 @@ export function Navbar() {
                 <Link
                   href="/purchases"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  className="flex items-center gap-2 text-base font-medium text-foreground/60 transition-colors hover:text-foreground"
                 >
                   <Receipt className="h-4 w-4" />
                   Mis Compras
@@ -249,7 +265,7 @@ export function Navbar() {
                 <Link
                   href="/wishlist"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  className="flex items-center gap-2 text-base font-medium text-foreground/60 transition-colors hover:text-foreground"
                 >
                   <Heart className="h-4 w-4" />
                   Favoritos
@@ -258,20 +274,20 @@ export function Navbar() {
                   <Link
                     href="/admin"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    className="flex items-center gap-2 text-base font-medium text-foreground/60 transition-colors hover:text-foreground"
                   >
                     <LayoutDashboard className="h-4 w-4" />
                     Dashboard
                   </Link>
                 )}
-                <Separator />
+                <Separator className="bg-border" />
                 <button
                   onClick={() => {
                     logout();
                     toast.success("Sesión cerrada.");
                     setMobileMenuOpen(false);
                   }}
-                  className="flex items-center gap-2 text-base font-medium text-destructive transition-colors hover:text-destructive/80"
+                  className="flex items-center gap-2 text-base font-medium text-red-500 transition-colors hover:text-red-600"
                 >
                   <LogOut className="h-4 w-4" />
                   Cerrar sesión
@@ -281,7 +297,7 @@ export function Navbar() {
               <Link
                 href="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="flex items-center gap-2 text-base font-medium text-foreground/60 transition-colors hover:text-foreground"
               >
                 <User className="h-4 w-4" />
                 Iniciar sesión

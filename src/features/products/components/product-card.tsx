@@ -48,12 +48,12 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <motion.div
-      className="group"
-      whileHover={{ y: -4 }}
+      className="sunset-glow group rounded-lg"
+      whileHover={{ y: -6 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
     >
       <Link href={`/products/${product.slug}`}>
-        <div className="relative aspect-square overflow-hidden border bg-secondary">
+        <div className="relative aspect-square overflow-hidden rounded-lg bg-forest/5">
           <Image
             src={product.imagen_principal}
             alt={product.nombre}
@@ -64,12 +64,12 @@ export function ProductCard({ product }: ProductCardProps) {
           {/* Badges top-left */}
           <div className="absolute left-2 top-2 flex flex-col gap-1">
             {!product.en_stock && (
-              <span className="bg-foreground px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-background">
+              <span className="rounded bg-forest px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-linen">
                 Agotado
               </span>
             )}
             {product.en_stock && hasDiscount && (
-              <span className="bg-foreground px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-background">
+              <span className="rounded bg-sunset px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white">
                 Oferta
               </span>
             )}
@@ -79,25 +79,25 @@ export function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={handleWishlist}
             aria-label={wishlisted ? "Quitar de favoritos" : "Agregar a favoritos"}
-            className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-opacity opacity-0 group-hover:opacity-100"
+            className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-linen/90 opacity-0 backdrop-blur-sm transition-all group-hover:opacity-100"
           >
             <Heart
               className={cn(
                 "h-4 w-4 transition-colors",
-                wishlisted ? "fill-foreground text-foreground" : "text-foreground",
+                wishlisted ? "fill-sunset text-sunset" : "text-forest",
               )}
             />
           </button>
         </div>
         <div className="mt-4 space-y-1">
-          <h3 className="text-sm font-medium">{product.nombre}</h3>
+          <h3 className="text-sm font-medium text-forest">{product.nombre}</h3>
           <div className="flex items-center gap-2">
             {hasDiscount && (
               <span className="text-sm text-muted-foreground line-through">
                 ${Number(product.precio).toLocaleString()}
               </span>
             )}
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm font-medium text-sunset">
               ${Number(product.precio_final).toLocaleString()}
             </span>
           </div>
@@ -106,7 +106,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <Button
         variant="outline"
         size="sm"
-        className="mt-3 w-full"
+        className="mt-3 w-full border-forest/20 hover:border-forest hover:bg-forest hover:text-linen"
         onClick={() => addItem(product)}
         disabled={!product.en_stock}
       >
