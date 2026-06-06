@@ -1,31 +1,10 @@
 "use client";
 
-import { Leaf, Pen, Printer, Sparkles } from "lucide-react";
+import type { ReactNode } from "react";
+import Link from "next/link";
+import { Leaf, Plus, Printer, Sparkles } from "lucide-react";
 import { FadeIn } from "@/shared/components/motion-wrapper";
-
-const steps = [
-  {
-    icon: Pen,
-    title: "Diseño 3D",
-    description:
-      "Cada lámpara nace como un modelo digital, donde perfeccionamos cada curva y proporción hasta lograr la pieza ideal.",
-    ecoBadge: false,
-  },
-  {
-    icon: Printer,
-    title: "Impresión en PLA",
-    description:
-      "Utilizamos PLA, un material ecológico derivado de recursos renovables, para dar vida a nuestros diseños con precisión milimétrica.",
-    ecoBadge: true,
-  },
-  {
-    icon: Sparkles,
-    title: "Acabado Artesanal",
-    description:
-      "Cada pieza recibe un acabado a mano que le otorga un carácter único. Ninguna lámpara es exactamente igual a otra.",
-    ecoBadge: false,
-  },
-];
+import { differentiators } from "@/features/about-process/data/differentiators";
 
 function SunburstIcon({ className }: { className?: string }) {
   return (
@@ -48,6 +27,25 @@ function SunburstIcon({ className }: { className?: string }) {
   );
 }
 
+/* Decorative illustration per differentiator slug */
+const illustrations: Record<string, ReactNode> = {
+  "diseno-3d": (
+    <SunburstIcon className="h-48 w-48 text-white/15 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-45" />
+  ),
+  "tecnologia-3d": (
+    <Printer
+      className="h-44 w-44 text-white/15 transition-transform duration-700 group-hover:scale-110"
+      strokeWidth={1}
+    />
+  ),
+  "material-sustentable": (
+    <Leaf
+      className="h-44 w-44 text-white/15 transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-6"
+      strokeWidth={1}
+    />
+  ),
+};
+
 export function ProcessSection() {
   return (
     <section className="relative overflow-hidden py-24">
@@ -55,74 +53,82 @@ export function ProcessSection() {
       <div
         className="pointer-events-none absolute inset-0"
         style={{
-          background: "linear-gradient(180deg, #fff 0%, hsl(30 30% 97%) 40%, hsl(24 40% 96%) 70%, #fff 100%)",
+          background:
+            "linear-gradient(180deg, #fff 0%, hsl(30 30% 97%) 40%, hsl(24 40% 96%) 70%, #fff 100%)",
         }}
       />
 
-      {/* Decorative sunburst top-right */}
-      <div className="pointer-events-none absolute -right-12 -top-12 opacity-[0.07]">
-        <SunburstIcon className="h-64 w-64 text-sunset" />
-      </div>
-
-      {/* Decorative sunburst bottom-left */}
-      <div className="pointer-events-none absolute -bottom-16 -left-16 opacity-[0.05]">
-        <SunburstIcon className="h-80 w-80 text-sunset" />
-      </div>
-
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+        {/* Heading — left aligned like the reference */}
         <FadeIn>
-          <div className="mb-16 text-center">
-            <SunburstIcon className="mx-auto mb-4 h-8 w-8 text-sunset" />
+          <div className="mb-10 max-w-2xl">
             <p className="text-xs font-medium uppercase tracking-[0.3em] text-sunset">
               Nuestro Proceso
             </p>
-            <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-forest sm:text-4xl">
-              De lo Digital a tu Hogar
+            <h2 className="mt-4 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-forest sm:text-4xl">
+              Así unimos Diseño
+              <br className="hidden sm:block" /> y Tecnología
             </h2>
-            <p className="mx-auto mt-4 max-w-lg text-sm text-muted-foreground">
-              Fusionamos tecnología de impresión 3D con artesanía tradicional para crear lámparas que son obras de arte funcionales.
-            </p>
           </div>
         </FadeIn>
 
-        <div className="grid grid-cols-1 gap-12 sm:grid-cols-3">
-          {steps.map((step, i) => (
-            <FadeIn key={step.title} delay={i * 0.15}>
-              <div className="flex flex-col items-center text-center">
-                <span className="mb-4 font-display text-5xl font-light text-sunset/30">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div className="flex h-16 w-16 items-center justify-center rounded-full border border-sunset/20 bg-sunset/5">
-                  <step.icon className={`h-6 w-6 ${step.ecoBadge ? "text-sage" : "text-sunset/70"}`} />
+        {/* Differentiator cards */}
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {differentiators.map((item, i) => (
+            <FadeIn key={item.slug} delay={i * 0.12}>
+              <Link
+                href={`/proceso/${item.slug}`}
+                className={`group relative flex h-[460px] flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-7 shadow-lg shadow-forest/10 transition-all duration-500 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-forest/20`}
+              >
+                {/* Decorative illustration */}
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  {illustrations[item.slug]}
                 </div>
-                <h3 className="mt-6 font-display text-lg font-semibold text-forest">{step.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {step.description}
-                </p>
-                {step.ecoBadge && (
-                  <span className="mt-3 inline-flex items-center gap-1 rounded-full border border-sage/30 bg-sage/10 px-3 py-1 text-xs text-sage">
-                    <Leaf size={10} />
-                    Material renovable
+
+                {/* Bottom legibility gradient */}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/35 to-transparent" />
+
+                {/* Top — category label */}
+                <div className="relative flex items-center justify-between">
+                  <span className="text-xs font-medium uppercase tracking-[0.2em] text-white/80">
+                    {item.label}
                   </span>
-                )}
-              </div>
+                  {item.ecoBadge && (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-white/30 bg-white/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-white backdrop-blur-sm">
+                      <Leaf size={10} />
+                      Renovable
+                    </span>
+                  )}
+                </div>
+
+                {/* Bottom — title, description and the "+" action */}
+                <div className="relative">
+                  <h3 className="font-display text-2xl font-semibold tracking-tight text-white">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 max-w-[26ch] text-sm leading-relaxed text-white/70">
+                    {item.summary}
+                  </p>
+                  <span className="mt-5 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 bg-white/10 text-white backdrop-blur-sm transition-all duration-300 group-hover:bg-white group-hover:text-forest">
+                    <Plus size={18} className="transition-transform duration-300 group-hover:rotate-90" />
+                  </span>
+                </div>
+              </Link>
             </FadeIn>
           ))}
         </div>
 
         {/* Sustainability strip */}
         <FadeIn delay={0.45}>
-          <div className="mt-16 flex flex-wrap items-center justify-center gap-6 rounded-lg border border-sage/20 bg-sage/5 px-6 py-4 text-xs text-sage sm:gap-10">
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-6 rounded-lg border border-sage/20 bg-sage/5 px-6 py-4 text-xs text-sage sm:gap-10">
             <span className="flex items-center gap-1.5">
               <Leaf size={12} />
               PLA renovable
             </span>
             <span className="hidden text-sage/30 sm:block">·</span>
             <span className="flex items-center gap-1.5">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-3 w-3" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-              </svg>
-              Sin desperdicio
+              <Sparkles size={12} />
+              Acabado artesanal
             </span>
             <span className="hidden text-sage/30 sm:block">·</span>
             <span className="flex items-center gap-1.5">
